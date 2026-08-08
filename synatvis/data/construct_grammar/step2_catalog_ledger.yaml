@@ -1,0 +1,90 @@
+version: 1
+stage: "Stage 0, Step 2 -- retrieve primary-source sequences"
+status: "in_progress -- metadata verified, DNA sequences not yet in hand"
+last_updated: "2026-08-07"
+
+note: "Every part below was independently verified by fetching its live catalog page at chlamycollection.org (not summarized/guessed). pCM0-120 was additionally cross-checked against the open-access de Carpentier et al. 2020 paper (Frontiers Plant Sci, PMC7066984) and the two independent sources agree on position, acceptor plasmid, and citation. No DNA sequence text has been retrieved for any part yet -- see blocked_on below. Each entry's accession field is empty on purpose; do not fill it with a guess."
+
+source_of_record: "https://www.chlamycollection.org/products/plasmids/moclo-toolkit/ (Chlamydomonas Resource Center) -- NOT Addgene, correcting the Step 1 assumption."
+
+parts:
+  - part_id: pCM0-001
+    brick_name: "PSAD promoter (no 5'UTR)"
+    brick_type: promoter
+    position_patron: A1-A3
+    acceptor_plasmid: pICH41233
+    source_citation: "Crozet et al. 2018, ACS Synth Biol"
+    accession_type: chlamycollection_catalog_entry
+    sequence: ""
+    verified_via: "direct fetch of chlamycollection.org/product/pcm0-001/, 2026-08-07"
+  - part_id: pCM0-054
+    brick_name: "SV40 NLS (N-terminal, CDS)"
+    brick_type: "signal/targeting peptide"
+    brick_function: "nuclear targeting"
+    position_patron: B2
+    acceptor_plasmid: pAGM1276
+    source_citation: "Lauersen et al. 2015, Appl Microbiol Biotechnol"
+    accession_type: chlamycollection_catalog_entry
+    sequence: ""
+    verified_via: "direct fetch of chlamycollection.org/product/pcm0-054/, 2026-08-07"
+  - part_id: pCM0-072
+    brick_name: "Ble(i)GFP fusion (CDS)"
+    brick_type: "antibiotic resistance + reporter"
+    brick_function: "Zeocin/Bleomycin resistance fused to GFP reporter"
+    position_patron: B3-B5
+    acceptor_plasmid: pAGM1287
+    source_citation: "Fuhrmann et al. 1999"
+    accession_type: chlamycollection_catalog_entry
+    sequence: ""
+    verified_via: "direct fetch of chlamycollection.org/product/pcm0-072/, 2026-08-07"
+    note: "same Fuhrmann 1999 GFP lineage already used as a Leg-3 rescue-pair case in data/cases.yaml -- a real link between the existing validated core and this new corpus."
+  - part_id: pCM0-109
+    brick_name: "SV40 NLS (C-terminal, CDS)"
+    brick_type: "signal/targeting peptide"
+    brick_function: "nuclear targeting"
+    position_patron: B5
+    acceptor_plasmid: pAGM1301
+    source_citation: "Lauersen et al. 2015, Appl Microbiol Biotechnol"
+    accession_type: chlamycollection_catalog_entry
+    sequence: ""
+    verified_via: "direct fetch of chlamycollection.org/product/pcm0-109/, 2026-08-07"
+  - part_id: pCM0-120
+    brick_name: BSR
+    brick_type: "antibiotic resistance (CDS)"
+    brick_function: "Blasticidin S resistance in Chlamydomonas"
+    position_patron: B3-B5
+    acceptor_plasmid: pICH41308
+    source_citation: "Crozet et al. 2018, ACS Synth Biol; de Carpentier et al. 2020, Front Plant Sci"
+    accession_type: chlamycollection_catalog_entry
+    sequence: ""
+    verified_via: "cross-checked TWO independent sources: chlamycollection.org/product/pcm0-120/ AND the open-access full text of de Carpentier et al. 2020 (PMC7066984) -- both agree on position B3-B5, acceptor pICH41308, and the Crozet/de Carpentier joint citation"
+
+blocked_on: "Actual DNA sequence text for every part above. Crozet et al. 2018 (the primary paper) is paywalled at ACS Publications with no PMC deposit (confirmed via PubMed metadata: no 'pmc' field for PMID 30165733) and no downloadable sequence file found on the catalog pages themselves (checked raw HTML directly, not just a page summary). de Carpentier et al. 2020 is open access (PMC7066984) but its plain full text does not contain the complete domesticated BSR coding sequence -- only short 20-nt primer fragments were found by scanning for DNA-letter runs; the full construct sequence is likely in a supplementary table/figure image, which is not machine-readable through the tools used here."
+
+next_options:
+  - "Request the paywalled Crozet 2018 Supporting Information through institutional/journal access (fastest, if available)."
+  - "Order the physical plasmid stock from the Chlamydomonas Resource Center and have it sequenced -- expensive and slow, but the most authoritative route; overlaps with the Step 11 licensing/MTA audit."
+  - "Check each paper's supplementary figures/tables (image-based) manually for embedded sequence text, since these are not retrievable through the text-only tools used in this pass."
+  - "Contact the original scientists directly and ask for the deposited sequence files -- chosen by the user on 2026-08-07 as the first thing to try."
+
+outreach:
+  status: "email drafted and handed to user 2026-08-07; not yet sent (drafting/sending is the user's own action, not automated)"
+  contacts_confirmed_by_direct_page_fetch:
+    - name: "Kyle J. Lauersen"
+      email: "kyle.lauersen@kaust.edu.sa"
+      role: "co-author, Crozet et al. 2018 (the founding Cr MoClo toolkit paper); active PI, KAUST"
+      verified_via: "official KAUST faculty page, fetched directly 2026-08-07"
+    - name: "Antoine Danon"
+      email: "antoine.danon@ibpc.fr"
+      role: "corresponding author, de Carpentier et al. 2020 (Blasticidin marker / pCM0-120); same IBPC lab as Crozet/Lemaire"
+      verified_via: "Frontiers article page, fetched directly 2026-08-07"
+    - name: "Pablo Leivar"
+      email: "pablo.leivar@iqs.url.edu"
+      role: "co-corresponding author, Melero-Cobo et al. 2025 (MoCloro chloroplast extension)"
+      verified_via: "PMC article page, fetched directly 2026-08-07"
+    - name: "Antoni Planas"
+      email: "antoni.planas@iqs.url.edu"
+      role: "co-corresponding author, Melero-Cobo et al. 2025 (MoCloro chloroplast extension)"
+      verified_via: "PMC article page, fetched directly 2026-08-07"
+  contacts_found_but_not_independently_verified:
+    - "lemaire@ibpc.fr and crozet@ibpc.fr appeared in a web search summary but were NOT found in the raw HTML of the specific lab page checked -- do not treat as confirmed; the general lab address lbmce-com@ibpc.fr (confirmed real, same page) is the safer fallback for reaching that group."

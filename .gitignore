@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+build/
+dist/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Generated bundle (rebuild from source; ship via GitHub Releases, not the tree)
+SynAT.Vis.zip
+
+# Claude Code local tool config (machine-specific, not project source)
+.claude/
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+
+# Local scratch / temp
+scratch/
+tmp/
+*.log

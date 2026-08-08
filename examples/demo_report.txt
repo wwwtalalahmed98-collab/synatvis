@@ -1,0 +1,47 @@
+==========================================================================
+  SynAT.Vis — Synthetic Algal Transcript red-flag report
+==========================================================================
+  Host        : Chlamydomonas reinhardtii
+  Compartment : nuclear  (lineage: chlorophyte; gate: compartment)
+  Transcript  : demo_cassette  (5'UTR 30 / CDS 82 / 3'UTR 36 nt)
+  Codon table : cr_nuclear_codon.tsv
+--------------------------------------------------------------------------
+  SCOPE & LIMITATIONS:
+   - Transcript-level only: splicing/processing, mRNA stability,
+     translation initiation, silencing-risk features.
+   - SILENT on proteolysis and protein stability — a real cause of low
+     yield it cannot see. A clean report is NOT a promise of expression.
+   - Diagnostic, not predictive: NO composite expression score is
+     emitted.
+   - This nuclear report says nothing about a chloroplast construct.
+   - poly(A) is the noisiest module; its operating point comes from
+     Leg-1, not assumption. The shipped codon table is a starting point
+     (see provenance).
+==========================================================================
+  SUMMARY: 5 flag(s) — high 2, medium 1, low 0, info 2.
+
+### cloning
+    Internal Type IIS sites (BsaI/BsmBI/BbsI/SapI) that break MoClo assembly
+  [HIGH  ] cds        45-51        BsaI site (GGTCTC, + strand) in cds. Domesticate before MoClo assembly.
+           evidence: Crozet 2018 (algal MoClo); Schroda 2019 — Type IIS domestication is standard for Cr
+           fix     : synonymous: codon 5 GGT->GGC (G)  [CTGGAGGGTCTCGCCAAG -> CTGGAGGGCCTCGCCAAG]
+
+### uorf
+    Upstream AUGs / uORFs in the 5'UTR that compete with the main start
+  [MEDIUM] 5utr       5-30         Upstream AUG at 5'UTR position 5: uAUG out of frame, overlapping the main start. Strong initiation context.
+           evidence: ribosome scanning: 5'UTR AUGs divert initiation from the main ORF
+           fix     : mutate the uAUG (e.g. ATG->ACG) in the 5'UTR if it is not functional
+
+### polya
+    Premature Cr poly(A) signals (TGTAA in a G/C-rich context) that truncate the transcript
+  [HIGH  ] cds        66-71        Premature poly(A) signal TGTAA inside the CDS in a G/C-rich context (GC 90%). Risks 3' cleavage and a truncated transcript.
+           evidence: Shen 2008 (PMID 18493049); Zhao 2014 (PMC4025486): Cr NUE is UGUAA in G/C-rich context
+           fix     : no clean synonymous fix — constraint conflict (no synonymous change removes the motif)
+  [INFO  ] 3utr       126-131      Poly(A) signal TGTAA with G/C-rich context in 3'UTR (context GC 88%) — expected here, not a hazard.
+           evidence: Shen 2008 (PMID 18493049); Zhao 2014 (PMC4025486): Cr NUE is UGUAA in G/C-rich context
+
+### silencing  [HEURISTIC — NOT VALIDATED]
+    HEURISTIC: sequence-visible silencing risk (GC troughs) + strain/intron guidance
+  [INFO  ] transcript 0-148        HEURISTIC guidance: Silencing in Cr is driven mainly by chromatin/strain, not CDS sequence. Use a silencing-deficient strain (e.g. UVM4/UVM11) and an intron-containing promoter, and include an intron (e.g. rbcS2 intron 1). This module reports only sequence-visible risk (GC troughs), never a sequence verdict.
+           evidence: Schroda 2019; Neupert/Bock UVM strains — silencing is chromatin/strain-driven
+

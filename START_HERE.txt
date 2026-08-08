@@ -1,0 +1,71 @@
+===============================================================================
+  SynAT.Vis  -  START HERE
+  Red-flag scanner for Chlamydomonas reinhardtii (nuclear) gene cassettes.
+===============================================================================
+
+WHAT THIS IS
+  A tool that reads a designed DNA cassette and reports why the mRNA might fail
+  to express well in Chlamydomonas - premature poly(A) signals, silencing-risk
+  GC troughs, rare-codon clusters, cloning sites, upstream AUGs, and more - and
+  suggests a fix for each. It is a diagnostic checklist, not an expression
+  predictor.
+
+  PREFER PICTURES?  Open  QUICKSTART_1page.pdf  - the whole thing on one page.
+
+
+TEST THAT IT WORKS  (3 steps, ~1 minute)
+
+  1. Unzip this folder somewhere (you have probably already done this).
+
+  2. Double-click the launcher for your computer:
+        Windows .......  RUN_ME.bat
+        macOS .........  RUN_ME.command   (first time only, if it won't open:
+                         open Terminal, run:  chmod +x RUN_ME.command )
+        Linux .........  in a terminal:  bash RUN_ME.command
+
+  3. Look for this line in the window that opens:
+        6/6 checks passed
+     That means the scanner correctly caught every planted problem in the test
+     files and stayed quiet on the clean control. It works.
+
+
+REQUIREMENT
+  Python 3.8 or newer must be installed on the computer.
+  Don't have it?  https://www.python.org/downloads/
+  (On Windows, tick "Add python.exe to PATH" during install.)
+  The launcher will tell you if Python is missing.
+
+
+USE IT ON YOUR OWN GENE  -  no typing needed
+  Save your sequence as a plain .fasta file, then:
+     Windows ...  DRAG your .fasta file onto the  SCAN-a-gene.bat  icon.
+     macOS ....   double-click  SCAN-a-gene.command , then pick your file.
+  A plain-language report opens and is saved next to your file. Fix the
+  items marked SERIOUS first.
+
+  (Advanced / from a terminal, if you want to mark the coding region:
+     py -m synatvis scan yourfile.fasta --cds START:END --plain
+   where START:END is where the coding sequence sits, 0-based. See
+   USER_GUIDE.pdf.)
+
+
+WHAT'S IN THE BOX
+  START_HERE.txt ........ this file
+  QUICKSTART_1page.pdf .. one-page picture guide
+  RUN_ME.bat / .command . one-click "does it work?" self-test launchers
+  SCAN-a-gene.bat ....... Windows: DRAG a .fasta file onto it to scan
+  SCAN-a-gene.command ... macOS/Linux: double-click to pick a file and scan
+  selftest.py ........... the self-test the RUN_ME launchers run
+  USER_GUIDE.pdf / .md .. full instructions (install, scan, interpret, tune)
+  BACKEND_HOWITWORKS.pdf  how the tool processes a transcript + why it is trustworthy
+  PROGRESS.pdf / .html .. build-progress dashboard (validation results at a glance)
+  README.md ............. project overview
+  examples/test_kit/ .... 6 test cassettes (one per failure mode) + expected
+                          results, so you can see exactly what it detects
+  synatvis/ ............. the scanner itself (Python; standard library only)
+  tests/ ................ developer test suite
+
+  Honest limits: transcript-level only; silent on protein stability; no
+  expression score; Chlamydomonas nuclear only. A clean report is not a
+  promise of expression. See USER_GUIDE section 7.
+===============================================================================

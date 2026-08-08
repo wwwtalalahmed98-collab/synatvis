@@ -1,0 +1,82 @@
+# =============================================================================
+# SynAT.Vis host profile — Chlamydomonas reinhardtii, CHLOROPLAST compartment.
+#
+# STUB / NOT VALIDATED. The chloroplast pulls OPPOSITE to the nucleus: high-AT
+# genome, prokaryote-like codon bias, NO spliceosomal introns, Shine-Dalgarno
+# translation. This file exists to prove the profile system is swappable
+# (adding it requires ZERO edits to modules/*.py — CLAUDE.md §4). Constants below
+# are placeholders and MUST be sourced before use. A nuclear report says nothing
+# about a chloroplast construct and vice versa (CLAUDE.md §10).
+# =============================================================================
+
+meta:
+  host: Chlamydomonas reinhardtii
+  compartment: chloroplast
+  lineage: chlorophyte
+  gating_axis: compartment
+  genome_ref: Cr chloroplast genome (NC_005353)
+  description: STUB chloroplast profile — placeholders, not validated
+  validated: false
+
+codon:
+  table: data/cr_chloroplast_codon.tsv    # TODO: ship an AT-biased plastid table
+  rare_weight_threshold: 0.15
+  cluster_window_codons: 8
+  cluster_min_rare: 4
+  low_rca_warn: 0.60
+
+composition:
+  target_gc: 0.35                  # high-AT: LOW GC is normal here (opposite of nuclear)
+  genome_gc: 0.345
+  window: 50
+  step: 10
+  gc_trough_low: 0.15              # placeholder; the hazard axis differs in plastid
+  gc_trough_warn: 0.20
+  min_trough_len: 40
+  homopolymer_min: 10
+
+polya:
+  # Plastid 3' processing is stem-loop / prokaryote-like, NOT UGUAA poly(A).
+  nue_motifs: []                   # TODO: replace with plastid 3' stem-loop logic
+  upstream_min: 10
+  upstream_max: 30
+  gc_context_window: 30
+  gc_context_min: 0.0
+
+splice:
+  # No spliceosomal introns in the plastid. Splice module should be inert here.
+  donor_consensus: ""
+  acceptor_consensus: ""
+  min_intron: 0
+  max_intron: 0
+  inserted_intron_name: ""
+  priority: none
+
+structure:
+  # Shine-Dalgarno translation: an SD module would replace Kozak-like logic.
+  start_context_window: 20
+  utr5_max_len: 300
+  utr5_struct_window: 40
+  max_pairing_frac: 0.55
+
+uorf:
+  flag_any_uaug: false             # polycistronic-adjacent context; different rules
+  strong_context_flag: false
+
+cloning:
+  enzymes:
+    BsaI: GGTCTC
+    BsmBI: CGTCTC
+    BbsI: GAAGAC
+    SapI: GCTCTTC
+  scope: [5utr, cds, 3utr]
+
+instability:
+  are_motifs: []
+  are_cluster_min: 2
+  are_window: 50
+
+silencing:
+  validated: false
+  reuse_composition_troughs: false
+  guidance: "Nuclear-style transgene silencing is not the plastid failure mode; this module is inert in the chloroplast profile."

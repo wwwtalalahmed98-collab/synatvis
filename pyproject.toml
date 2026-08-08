@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "synatvis"
+version = "0.1.0"
+description = "Transcript-level red-flag scanner for Chlamydomonas reinhardtii nuclear gene cassettes"
+readme = "README.md"
+requires-python = ">=3.8"
+keywords = ["chlamydomonas", "synthetic biology", "transcript", "codon", "MoClo"]
+
+# The CORE package needs NOTHING beyond the standard library. The extras below
+# only upgrade specific features (see requirements.txt / README).
+dependencies = []
+
+[project.optional-dependencies]
+yaml = ["pyyaml>=5.4"]            # robust profile / cases.yaml parsing
+genbank = ["biopython>=1.79"]     # GenBank / SnapGene input in seqio
+structure = ["ViennaRNA>=2.5"]    # real 5'UTR start-codon folding
+full = ["pyyaml>=5.4", "biopython>=1.79", "ViennaRNA>=2.5"]
+dev = ["pytest>=7"]
+
+[project.scripts]
+synatvis = "synatvis.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["synatvis*"]
+
+[tool.setuptools.package-data]
+synatvis = ["data/*.tsv", "data/*.fasta", "data/*.yaml", "profiles/*.yaml"]

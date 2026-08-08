@@ -1,0 +1,17 @@
+# SynAT.Vis dependencies.
+#
+# The CORE package runs on the Python standard library alone (Python >= 3.8).
+# Everything below is OPTIONAL and only upgrades specific features; the tool
+# degrades gracefully and prints a note when an optional backend is absent.
+
+# Nicer YAML parsing for profiles / cases.yaml. Without it, a bundled minimal
+# YAML subset parser (synatvis/_yaml.py) is used instead.
+pyyaml>=5.4
+
+# GenBank / SnapGene (.gb/.gbk/.dna) parsing in seqio. Without it, only FASTA
+# and a minimal GenBank fallback are available.
+biopython>=1.79
+
+# 5'UTR secondary-structure accessibility in the `structure` module. Without it,
+# that module falls back to a base-composition heuristic and labels itself so.
+ViennaRNA>=2.5

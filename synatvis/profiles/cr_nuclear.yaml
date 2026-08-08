@@ -1,0 +1,109 @@
+# =============================================================================
+# SynAT.Vis host profile — Chlamydomonas reinhardtii, NUCLEAR compartment (v1).
+#
+# THIS FILE IS DATA. All host biology constants live here; modules/*.py read them
+# and hard-code nothing (CLAUDE.md §4). Values are sourced in §2 of CLAUDE.md and
+# several run OPPOSITE to land plants (marked FLIP). Do not "correct" them with
+# land-plant intuitions.
+# =============================================================================
+
+meta:
+  host: Chlamydomonas reinhardtii
+  compartment: nuclear
+  lineage: chlorophyte
+  gating_axis: compartment          # v1 gate is nuclear vs chloroplast
+  genome_ref: Phytozome Cr v5.6/v6.1 (JGI)
+  description: Cr nuclear transgene transcript-level red-flag profile
+  validated: true
+
+# --- codon usage (GC-biased; drives BOTH elongation AND mRNA stability) -------
+codon:
+  table: data/cr_nuclear_codon.tsv    # relative to the synatvis package dir
+  rare_weight_threshold: 0.10         # adaptiveness w below this = "rare"
+  cluster_window_codons: 8
+  cluster_min_rare: 5                 # >=5 rare codons in the window -> flag
+  low_rca_warn: 0.60                  # whole-CDS RCA below this = informational note
+  # OPERATING POINT (Leg-1, 500 real Cr nuclear CDS): rare_w<0.10 & cluster>=5
+  # gives ~3% medium+ false-positive rate (was 45% at 0.15 & 4).
+  # --- Tier-A frontier metrics: multi-criteria panel (Demissie 2025) ---------
+  optimality_table: data/cr_codon_optimality.tsv   # Ikemura optimality (HE vs genome; mRNA stability)
+  optimality_window: 30                            # codons in the sliding window
+  optimality_cutoff: -0.20                         # mean optimality below this = de-optimized region (0.9% FP on 5,000 genes)
+  codon_pair_table: data/cr_codon_pairs.tsv        # Coleman codon-pair score (CPS)
+  cpb_cutoff: -0.5                                 # CPS below this = strongly under-represented pair
+  cpb_run_len: 5                                   # >= this many consecutive under-represented pairs -> flag (native 98th pct = 4)
+  tai_table: data/cr_tai_weights.tsv               # dos Reis tAI from GtRNAdb Crein5 tRNA counts
+  low_tai_warn: 0.34                               # whole-CDS tAI below this = poor tRNA adaptation (native 2nd pct)
+
+# --- composition: LOW GC is the hazard here (FLIP vs plants) ------------------
+composition:
+  target_gc: 0.66
+  genome_gc: 0.64
+  window: 50
+  step: 10
+  gc_trough_low: 0.40                 # local GC below this = silencing/heterochromatin risk (MEDIUM)
+  gc_trough_warn: 0.45                # local GC below this = trough (LOW)
+  min_trough_len: 60
+  homopolymer_min: 10                 # mononucleotide run length to flag (synthesis + processivity)
+  # NOTE: high GC is NORMAL and must NOT be flagged (CLAUDE.md §9).
+  # OPERATING POINT (Leg-1, 500 real Cr nuclear CDS): warn 0.45 / low 0.40 /
+  # min_len 60 gives ~5% medium+ false-positive rate (was 13% at 0.50/40).
+
+# --- poly(A): Cr NUE is UGUAA (TGTAA) in a G/C-rich context (FLIP: not AAUAAA) -
+polya:
+  nue_motifs: [TGTAA, TGTAG, TGCAA, ATGTAA]
+  upstream_min: 10                    # NUE typically ~10-30 nt upstream of the site
+  upstream_max: 30
+  gc_context_window: 30
+  gc_context_min: 0.85                # require a strong Cr-type G/C-rich context to call a functional-looking NUE
+  # A premature NUE-in-context inside the 5'UTR/CDS risks a truncated transcript.
+  # OPERATING POINT (Leg-1, 500 real Cr nuclear CDS): 0.85 gives ~2-3% medium+
+  # false-positive rate (was 46% at 0.55). Genuine hazards / injected NUEs sit in
+  # ~100% GC context, so sensitivity is preserved (confirmed by Leg-2).
+
+# --- splice: introns are ASSETS; NO dicot cryptic detector, NO clade gating ----
+splice:
+  donor_consensus: GTRAG              # 5' splice site (GT + Cr context; R = A/G)
+  acceptor_consensus: YAG             # 3' splice site (Y = C/T)
+  min_intron: 50
+  max_intron: 500
+  inserted_intron_name: rbcS2i1       # rbcS2 intron 1, standard expression booster
+  priority: low
+
+# --- structure / start context ------------------------------------------------
+structure:
+  start_context_window: 12
+  utr5_max_len: 200
+  utr5_struct_window: 40
+  max_pairing_frac: 0.78              # legacy GC fallback (retained for schema compatibility)
+  # --- mRNA folding ΔG axis (Tier-A): start-region structure impedes initiation
+  struct_window_before: 15           # nt of 5'UTR included in the initiation window
+  struct_window_after: 45            # nt of CDS included
+  struct_paired_max: 0.70            # ViennaRNA paired-fraction cutoff (native 97-98th pct -> ~2% FP)
+  struct_paired_max_heuristic: 0.80  # Nussinov fallback cutoff (heuristic; Nussinov over-pairs)
+
+# --- uORF ---------------------------------------------------------------------
+uorf:
+  flag_any_uaug: true
+  strong_context_flag: true
+
+# --- cloning: Type IIS domestication for algal MoClo (Crozet 2018) ------------
+cloning:
+  enzymes:
+    BsaI: GGTCTC
+    BsmBI: CGTCTC
+    BbsI: GAAGAC
+    SapI: GCTCTTC
+  scope: [5utr, cds, 3utr]
+
+# --- instability: AU-rich elements --------------------------------------------
+instability:
+  are_motifs: [ATTTA]
+  are_cluster_min: 2
+  are_window: 50
+
+# --- silencing: QUARANTINED, heuristic only (CLAUDE.md §6, §10) ----------------
+silencing:
+  validated: false
+  reuse_composition_troughs: true
+  guidance: "Silencing in Cr is driven mainly by chromatin/strain, not by the gene's DNA sequence itself. Use a silencing-deficient strain (e.g. UVM4/UVM11) and an intron-containing promoter, and include an intron (e.g. rbcS2 intron 1). This module reports only sequence-visible risk (GC troughs), never a verdict."

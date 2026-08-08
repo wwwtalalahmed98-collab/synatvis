@@ -1,0 +1,510 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SynAT.Vis report — demo_cassette</title>
+<style>
+:root{--bg:#f4f5f3;--card:#fff;--ink:#14171a;--ink2:#4b5158;--muted:#8a9099;
+--line:#e6e8ea;--ring:rgba(20,23,26,.07);--accent:#1a3c5e;
+--good:#0ca30c;--warn:#e07b39;--bad:#d03b3b;}
+@media(prefers-color-scheme:dark){:root{--bg:#0e1013;--card:#171a1e;--ink:#f2f4f6;
+--ink2:#c3c8ce;--muted:#8a9099;--line:#262b31;--ring:rgba(255,255,255,.06);
+--accent:#3a6ea5;}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.55;
+-webkit-font-smoothing:antialiased}
+.wrap{max-width:760px;margin:0 auto;padding:0 18px 64px}
+header{background:var(--accent);color:#fff;margin:0 -18px 0;padding:22px 26px}
+.brand{font-weight:800;font-size:15px;letter-spacing:.3px;opacity:.9}
+.gene{font-size:23px;font-weight:750;margin:2px 0 3px}
+.host{font-size:13px;opacity:.85}
+.hero{display:flex;gap:14px;align-items:center;background:var(--card);
+border:1px solid var(--ring);border-radius:14px;padding:16px 18px;margin:18px 0 6px;
+box-shadow:0 1px 2px var(--ring)}
+.hero .ic{font-size:26px;line-height:1}
+.hero.good{--h:var(--good)} .hero.warn{--h:var(--warn)} .hero.bad{--h:var(--bad)}
+.hero .ic{color:var(--h)}
+.hero .hl{font-size:16px;font-weight:650}
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 4px}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--ink2);
+background:var(--card);border:1px solid var(--ring);border-radius:999px;padding:4px 11px}
+.pill b{color:var(--pc);font-size:14px}
+.help{font-size:12.5px;color:var(--muted);margin:6px 2px 20px}
+.svh{font-size:13px;text-transform:uppercase;letter-spacing:.6px;color:var(--sc);
+margin:26px 0 10px;font-weight:750;display:flex;align-items:center;gap:8px}
+.svh .svsub{text-transform:none;letter-spacing:0;color:var(--muted);font-weight:500;font-size:12px}
+.svh .cnt{margin-left:auto;background:var(--sc);color:#fff;border-radius:999px;
+font-size:11px;padding:1px 9px}
+.card,.pcard{background:var(--card);border:1px solid var(--ring);border-left:4px solid var(--cc,#8a6d1f);
+border-radius:12px;padding:13px 16px;margin:9px 0;box-shadow:0 1px 2px var(--ring)}
+.ctop{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.ctitle{font-weight:680;font-size:15px}
+.tag{font-size:10.5px;font-family:ui-monospace,Consolas,monospace;color:var(--ink2);
+background:var(--bg);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+.tag.heur{color:#8a6d1f;border-color:#e3d4a1}
+.tag.exp{color:#8a6d1f;border-color:#e3d4a1}
+.loc{font-size:12px;color:var(--muted);margin:3px 0 6px}
+.msg{margin:0 0 8px;font-size:14px;color:var(--ink2)}
+.fix{background:color-mix(in srgb,var(--good) 8%,transparent);border:1px solid color-mix(in srgb,var(--good) 25%,transparent);
+border-radius:8px;padding:8px 11px;font-size:13px}
+.fix span{display:block;font-weight:650;color:var(--good);font-size:11px;
+text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}
+.fix code{font-family:ui-monospace,Consolas,monospace;font-size:12px;color:var(--ink);word-break:break-word}
+.fix.none{background:var(--bg);border-color:var(--line);color:var(--muted);font-style:italic}
+.ev{font-size:11.5px;color:var(--muted);margin-top:7px;border-top:1px dashed var(--line);padding-top:6px}
+.notes{font-size:12.5px;color:var(--muted);margin:8px 0}
+footer{margin-top:34px;padding-top:14px;border-top:1px solid var(--line);
+font-size:12px;color:var(--muted)}
+footer b{color:var(--ink2)}
+.expcard{background:var(--card);border:1px solid var(--ring);border-radius:14px;
+padding:16px 18px;margin:8px 0 4px;box-shadow:0 1px 2px var(--ring)}
+.gauge{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+.gnum{font-size:34px;font-weight:800;line-height:1}
+.gnum small{font-size:15px;color:var(--muted);font-weight:600}
+.gband{font-size:13px;font-weight:650}
+.gbar{height:9px;background:var(--bg);border:1px solid var(--ring);border-radius:999px;overflow:hidden}
+.gfill{height:100%;border-radius:999px}
+.axrow{display:flex;align-items:center;gap:10px;margin:5px 0;font-size:12.5px}
+.axl{flex:0 0 46%;color:var(--ink2)}
+.axtrack{flex:1;height:8px;background:var(--bg);border:1px solid var(--ring);border-radius:999px;overflow:hidden}
+.axfill{display:block;height:100%;background:var(--accent);border-radius:999px}
+.axp{flex:0 0 40px;text-align:right;color:var(--muted);font-variant-numeric:tabular-nums;font-size:11.5px}
+.axrow.off .axl{color:var(--muted)}
+.hazrow{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 2px}
+.hchip{font-size:11px;color:#b23b3b;background:color-mix(in srgb,#d03b3b 8%,transparent);
+border:1px solid color-mix(in srgb,#d03b3b 25%,transparent);border-radius:6px;padding:2px 8px}
+.landwrap{margin-top:12px}
+.landlbl{font-size:11px;color:var(--muted);margin-bottom:3px}
+.land{width:100%;height:66px;display:block}
+.lvpipe{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin:6px 0 4px}
+.lvtile{background:var(--card);border:1px solid var(--ring);border-top:4px solid var(--lc);
+border-radius:10px;padding:9px 10px;box-shadow:0 1px 2px var(--ring)}
+.lvtop{display:flex;align-items:center;gap:6px}
+.lvnum{font-size:10px;font-weight:700;color:var(--muted);background:var(--bg);border:1px solid var(--line);
+border-radius:50%;width:16px;height:16px;display:inline-flex;align-items:center;justify-content:center}
+.lvic{font-size:15px;font-weight:800;line-height:1}
+.lvscore{margin-left:auto;font-size:11px;font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums}
+.lvname{font-size:11.5px;font-weight:700;margin-top:5px;color:var(--ink)}
+.lvdesc{font-size:9.5px;color:var(--muted);line-height:1.35;margin-top:2px}
+.lvissues{margin:6px 0 0;padding-left:14px;font-size:9.5px;color:var(--warn)}
+.lvok{margin-top:6px;font-size:9.5px;color:var(--good);font-weight:600}
+@media(max-width:640px){.lvpipe{grid-template-columns:repeat(2,1fr)}}
+.fchips{display:flex;flex-wrap:wrap;gap:8px}
+.fchip{display:inline-flex;flex-direction:column;gap:1px;background:var(--bg);
+border:1px solid var(--ring);border-radius:9px;padding:6px 11px;min-width:88px}
+.fchip b{font-size:13.5px;color:var(--ink)}
+.fchip span{font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+.fnotes{font-size:12px;color:var(--ink2);margin:10px 0 2px;padding-left:18px}
+.celliframe{width:100%;height:900px;border:1px solid var(--ring);border-radius:14px;
+background:var(--card);margin:2px 0;transition:height .15s ease}
+</style></head><body><div class="wrap">
+<header><div class="brand">SynAT.Vis</div>
+<div class="gene">demo_cassette</div>
+<div class="host">Chlamydomonas reinhardtii · nuclear compartment
+· 0/148/0 nt (5'UTR/CDS/3'UTR)</div></header>
+<div class="hero bad"><span class="ic">&#9888;</span><span class="hl">4 serious issues to fix before you build this.</span></div>
+<div class="pills"><span class="pill" style="--pc:#d03b3b"><b>4</b><span>serious</span></span><span class="pill" style="--pc:#e07b39"><b>1</b><span>worth checking</span></span><span class="pill" style="--pc:#2a78d6"><b>0</b><span>minor</span></span><span class="pill" style="--pc:#6b7280"><b>4</b><span>info</span></span></div>
+<div class="help">Read the <b>Serious</b> items first. Each finding shows where it is,
+what it means in plain terms, and a suggested fix.</div>
+<ul class="notes"><li>no UTR annotation supplied; whole sequence treated as coding sequence (pass cds_span or split explicitly for UTR-aware checks)</li></ul>
+<h2 class="svh" style="--sc:#1a3c5e">How the protein gets made — six checkpoints <span class="svsub" style="color:#cf4b3a">1 of 6 levels clear &middot; first block at <b>Pre-transcription</b></span></h2><div class="lvpipe"><div class="lvtile" style="--lc:#cf4b3a"><div class="lvtop"><span class="lvnum">1</span><span class="lvic" style="color:#cf4b3a">&#10007;</span><span class="lvscore">70</span></div><div class="lvname">Pre-transcription</div><div class="lvdesc">DNA construct &amp; chromatin/silencing context</div><ul class="lvissues"><li>Type IIS / cloning sites</li></ul></div><div class="lvtile" style="--lc:#1f9d55"><div class="lvtop"><span class="lvnum">2</span><span class="lvic" style="color:#1f9d55">&#10003;</span></div><div class="lvname">Transcription</div><div class="lvdesc">primary transcript is made and not silenced</div><div class="lvok">clear</div></div><div class="lvtile" style="--lc:#cf4b3a"><div class="lvtop"><span class="lvnum">3</span><span class="lvic" style="color:#cf4b3a">&#10007;</span></div><div class="lvname">Post-transcription</div><div class="lvdesc">splicing, poly(A), stability, export</div><ul class="lvissues"><li>Premature poly(A) in CDS</li></ul></div><div class="lvtile" style="--lc:#cf4b3a"><div class="lvtop"><span class="lvnum">4</span><span class="lvic" style="color:#cf4b3a">&#10007;</span></div><div class="lvname">Pre-translation</div><div class="lvdesc">5&#x27;UTR, start codon, initiation</div><ul class="lvissues"><li>Start codon (ATG)</li><li>5&#x27; mRNA start-region structure</li></ul></div><div class="lvtile" style="--lc:#d98a1f"><div class="lvtop"><span class="lvnum">5</span><span class="lvic" style="color:#d98a1f">!</span><span class="lvscore">0</span></div><div class="lvname">Translation</div><div class="lvdesc">codon usage &amp; elongation</div><ul class="lvissues"><li>Codon adaptation (RCA)</li><li>tRNA adaptation (tAI)</li></ul></div><div class="lvtile" style="--lc:#cf4b3a"><div class="lvtop"><span class="lvnum">6</span><span class="lvic" style="color:#cf4b3a">&#10007;</span><span class="lvscore">51</span></div><div class="lvname">Post-translation</div><div class="lvdesc">folding, PTM, localisation, recovery</div><ul class="lvissues"><li>Structure confidence</li><li>Recovery</li></ul></div></div>
+<h2 class="svh" style="--sc:#256abf">Predicted expression propensity <span class="svsub">— a model, not a measured yield</span></h2><div class="expcard"><div class="gauge"><div class="gnum" style="color:#d03b3b">1<small>/100</small></div><div class="gband" style="color:#d03b3b">LIKELY POOR — redesign recommended</div><div class="gbar"><div class="gfill" style="width:1%;background:#d03b3b"></div></div></div><div class="axes"><div class="axrow"><span class="axl">codon adaptation -&gt; translation &amp; mRNA stability</span><span class="axtrack"><span class="axfill" style="width:0%"></span></span><span class="axp">0</span></div><div class="axrow"><span class="axl">tRNA-pool adaptation -&gt; elongation</span><span class="axtrack"><span class="axfill" style="width:1%"></span></span><span class="axp">1</span></div><div class="axrow"><span class="axl">GC content -&gt; silencing resistance</span><span class="axtrack"><span class="axfill" style="width:71%"></span></span><span class="axp">71</span></div><div class="axrow"><span class="axl">structural stability (mRNA folding dG)</span><span class="axtrack"><span class="axfill" style="width:62%"></span></span><span class="axp">62</span></div></div><div class="hazrow"><span class="hchip">×0.35 premature poly(A) signal</span><span class="hchip">×0.15 CDS does not begin with ATG</span></div><div class="landwrap"><div class="landlbl">Per-codon adaptiveness along the coding sequence — dips (below the dashed line) mark slow, expression-limiting regions</div><svg class="land" viewBox="0 0 680 66" preserveAspectRatio="none" role="img" aria-label="per-codon adaptiveness along the coding sequence"><rect x="0.0" y="0" width="13.9" height="66" fill="#d03b3b" opacity="0.14"/><rect x="14.2" y="0" width="13.9" height="66" fill="#d03b3b" opacity="0.14"/><rect x="70.8" y="0" width="13.9" height="66" fill="#d03b3b" opacity="0.14"/><rect x="85.0" y="0" width="13.9" height="66" fill="#d03b3b" opacity="0.14"/><rect x="113.3" y="0" width="13.9" height="66" fill="#d03b3b" opacity="0.14"/><rect x="212.5" y="0" width="13.9" height="66" fill="#d03b3b" opacity="0.14"/><rect x="226.7" y="0" width="13.9" height="66" fill="#d03b3b" opacity="0.14"/><rect x="311.7" y="0" width="13.9" height="66" fill="#d03b3b" opacity="0.14"/><rect x="425.0" y="0" width="13.9" height="66" fill="#d03b3b" opacity="0.14"/><rect x="439.2" y="0" width="13.9" height="66" fill="#d03b3b" opacity="0.14"/><rect x="467.5" y="0" width="13.9" height="66" fill="#d03b3b" opacity="0.14"/><rect x="481.7" y="0" width="13.9" height="66" fill="#d03b3b" opacity="0.14"/><rect x="495.8" y="0" width="13.9" height="66" fill="#d03b3b" opacity="0.14"/><rect x="510.0" y="0" width="13.9" height="66" fill="#d03b3b" opacity="0.14"/><rect x="595.0" y="0" width="13.9" height="66" fill="#d03b3b" opacity="0.14"/><rect x="680.0" y="0" width="13.9" height="66" fill="#d03b3b" opacity="0.14"/><path d="M0,66 L0.0,51.9 L14.2,53.2 L28.3,6.0 L42.5,6.0 L56.7,6.0 L70.8,51.9 L85.0,53.2 L99.2,6.0 L113.3,54.6 L127.5,6.0 L141.7,6.0 L155.8,6.0 L170.0,6.0 L184.2,6.0 L198.3,6.0 L212.5,54.3 L226.7,51.6 L240.8,6.0 L255.0,6.0 L269.2,6.0 L283.3,6.0 L297.5,6.0 L311.7,56.8 L325.8,6.0 L340.0,6.0 L354.2,6.0 L368.3,6.0 L382.5,6.0 L396.7,6.0 L410.8,44.7 L425.0,59.7 L439.2,60.0 L453.3,6.0 L467.5,47.3 L481.7,58.4 L495.8,60.0 L510.0,60.5 L524.2,6.0 L538.3,6.0 L552.5,30.3 L566.7,6.0 L580.8,6.0 L595.0,56.8 L609.2,6.0 L623.3,6.0 L637.5,6.0 L651.7,6.0 L665.8,6.0 L680.0,51.9 L680,66 Z" fill="var(--accent)" opacity="0.12"/><path d="M0.0,51.9 L14.2,53.2 L28.3,6.0 L42.5,6.0 L56.7,6.0 L70.8,51.9 L85.0,53.2 L99.2,6.0 L113.3,54.6 L127.5,6.0 L141.7,6.0 L155.8,6.0 L170.0,6.0 L184.2,6.0 L198.3,6.0 L212.5,54.3 L226.7,51.6 L240.8,6.0 L255.0,6.0 L269.2,6.0 L283.3,6.0 L297.5,6.0 L311.7,56.8 L325.8,6.0 L340.0,6.0 L354.2,6.0 L368.3,6.0 L382.5,6.0 L396.7,6.0 L410.8,44.7 L425.0,59.7 L439.2,60.0 L453.3,6.0 L467.5,47.3 L481.7,58.4 L495.8,60.0 L510.0,60.5 L524.2,6.0 L538.3,6.0 L552.5,30.3 L566.7,6.0 L580.8,6.0 L595.0,56.8 L609.2,6.0 L623.3,6.0 L637.5,6.0 L651.7,6.0 L665.8,6.0 L680.0,51.9" fill="none" stroke="var(--accent)" stroke-width="1.4"/><line x1="0" y1="45.9" x2="680" y2="45.9" stroke="#d03b3b" stroke-width="0.6" stroke-dasharray="3 3" opacity="0.5"/></svg></div><div class="ev">Ensemble of 4 model(s), anchored to 5000 well-expressed native Cr genes. A MODEL, not a measured yield: uncalibrated pending experimental data. Directionally validated (Cr-optimised &gt; native, native &gt; foreign).</div></div>
+<h2 class="svh" style="--sc:#256abf">Live journey — gene to purified protein <span class="svsub">— every checkpoint, parameter &amp; scale, with citations</span></h2><iframe class="celliframe" srcdoc="<!doctype html><html><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>SynAT.Vis - journey: demo_cassette</title><style>body{margin:0;padding:20px;background:var(--bg,#f6f8fb)}</style></head><body><div class=&quot;cellwrap&quot;>
+  <div class=&quot;chead&quot;>
+    <div><div class=&quot;ctitle&quot;>demo_cassette</div>
+      <div class=&quot;csub&quot;>Gene &amp;rarr; protein &amp;rarr; purified protein &amp;middot; <span id=&quot;locName&quot;>-</span></div></div>
+    <div class=&quot;cgauge&quot;><div class=&quot;gnum&quot; id=&quot;epiNum&quot;>--</div><div class=&quot;glab&quot;>expression<br>index</div></div>
+  </div>
+
+  <div class=&quot;lvstrip&quot; id=&quot;lvstrip&quot;></div>
+  <div class=&quot;stagebar&quot; id=&quot;stagebar&quot;></div>
+  
+<svg id=&quot;scene&quot; viewBox=&quot;0 0 980 770&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot; role=&quot;img&quot; aria-label=&quot;Schematic Chlamydomonas cell and purification bench&quot;>
+  <defs>
+    <radialGradient id=&quot;gCyto&quot; cx=&quot;50%&quot; cy=&quot;40%&quot; r=&quot;75%&quot;>
+      <stop offset=&quot;0%&quot; stop-color=&quot;var(--cyto0)&quot;/><stop offset=&quot;100%&quot; stop-color=&quot;var(--cyto1)&quot;/></radialGradient>
+    <radialGradient id=&quot;gChloro&quot; cx=&quot;50%&quot; cy=&quot;60%&quot; r=&quot;70%&quot;>
+      <stop offset=&quot;0%&quot; stop-color=&quot;var(--chl0)&quot;/><stop offset=&quot;100%&quot; stop-color=&quot;var(--chl1)&quot;/></radialGradient>
+    <radialGradient id=&quot;gNuc&quot; cx=&quot;45%&quot; cy=&quot;40%&quot; r=&quot;65%&quot;>
+      <stop offset=&quot;0%&quot; stop-color=&quot;var(--nuc0)&quot;/><stop offset=&quot;100%&quot; stop-color=&quot;var(--nuc1)&quot;/></radialGradient>
+    <radialGradient id=&quot;gPyr&quot; cx=&quot;50%&quot; cy=&quot;50%&quot; r=&quot;60%&quot;>
+      <stop offset=&quot;0%&quot; stop-color=&quot;var(--pyr0)&quot;/><stop offset=&quot;100%&quot; stop-color=&quot;var(--pyr1)&quot;/></radialGradient>
+  </defs>
+
+  <g stroke=&quot;var(--org)&quot; stroke-width=&quot;3&quot; fill=&quot;none&quot; opacity=&quot;0.7&quot; stroke-linecap=&quot;round&quot;>
+    <path d=&quot;M430,110 C400,64 360,42 330,20&quot;/><path d=&quot;M545,110 C575,64 615,42 645,20&quot;/></g>
+
+  <ellipse cx=&quot;490&quot; cy=&quot;300&quot; rx=&quot;452&quot; ry=&quot;276&quot; fill=&quot;var(--wall)&quot; opacity=&quot;0.5&quot;/>
+  <ellipse id=&quot;membrane&quot; cx=&quot;490&quot; cy=&quot;300&quot; rx=&quot;440&quot; ry=&quot;266&quot; fill=&quot;url(#gCyto)&quot;
+           stroke=&quot;var(--memb)&quot; stroke-width=&quot;4&quot;/>
+
+  <path id=&quot;chloroplast&quot; d=&quot;M112,278 C112,530 300,578 490,578 C680,578 868,530 868,278
+      C868,445 700,512 490,512 C280,512 112,445 112,278 Z&quot;
+      fill=&quot;url(#gChloro)&quot; stroke=&quot;var(--chlst)&quot; stroke-width=&quot;3&quot;/>
+  <ellipse id=&quot;pyrenoid&quot; cx=&quot;490&quot; cy=&quot;484&quot; rx=&quot;50&quot; ry=&quot;42&quot; fill=&quot;url(#gPyr)&quot; stroke=&quot;var(--chlst)&quot; stroke-width=&quot;2.5&quot;/>
+  <text x=&quot;490&quot; y=&quot;489&quot; class=&quot;orgtiny&quot; text-anchor=&quot;middle&quot;>pyrenoid</text>
+  <ellipse cx=&quot;176&quot; cy=&quot;372&quot; rx=&quot;16&quot; ry=&quot;9&quot; fill=&quot;var(--eye)&quot; transform=&quot;rotate(-24 176 372)&quot;/>
+
+  <g opacity=&quot;0.95&quot;>
+    <rect x=&quot;250&quot; y=&quot;158&quot; width=&quot;92&quot; height=&quot;32&quot; rx=&quot;16&quot; fill=&quot;var(--mito)&quot;/>
+    <path d=&quot;M258,174 q7,-9 14,0 t14,0 t14,0 t14,0 t14,0&quot; fill=&quot;none&quot; stroke=&quot;#fff&quot; stroke-width=&quot;1.5&quot; opacity=&quot;0.45&quot;/>
+  </g>
+  <g transform=&quot;rotate(18 790 203)&quot; opacity=&quot;0.95&quot;>
+    <rect x=&quot;742&quot; y=&quot;188&quot; width=&quot;96&quot; height=&quot;30&quot; rx=&quot;15&quot; fill=&quot;var(--mito)&quot;/>
+    <path d=&quot;M750,203 q7,-8 14,0 t14,0 t14,0 t14,0 t14,0&quot; fill=&quot;none&quot; stroke=&quot;#fff&quot; stroke-width=&quot;1.5&quot; opacity=&quot;0.45&quot;/>
+  </g>
+  <!-- chloroplast thylakoid stacks (grana) -->
+  <g stroke=&quot;var(--chlst)&quot; stroke-width=&quot;2.4&quot; opacity=&quot;0.5&quot; stroke-linecap=&quot;round&quot;>
+    <line x1=&quot;300&quot; y1=&quot;505&quot; x2=&quot;342&quot; y2=&quot;505&quot;/><line x1=&quot;300&quot; y1=&quot;512&quot; x2=&quot;342&quot; y2=&quot;512&quot;/><line x1=&quot;300&quot; y1=&quot;519&quot; x2=&quot;342&quot; y2=&quot;519&quot;/>
+    <line x1=&quot;640&quot; y1=&quot;505&quot; x2=&quot;682&quot; y2=&quot;505&quot;/><line x1=&quot;640&quot; y1=&quot;512&quot; x2=&quot;682&quot; y2=&quot;512&quot;/><line x1=&quot;640&quot; y1=&quot;519&quot; x2=&quot;682&quot; y2=&quot;519&quot;/>
+  </g>
+
+  <circle id=&quot;nucleus&quot; cx=&quot;470&quot; cy=&quot;238&quot; r=&quot;86&quot; fill=&quot;url(#gNuc)&quot; stroke=&quot;var(--nucst)&quot; stroke-width=&quot;3&quot;/>
+  <circle cx=&quot;452&quot; cy=&quot;230&quot; r=&quot;29&quot; fill=&quot;var(--nucst)&quot; opacity=&quot;0.4&quot;/>
+  <!-- nuclear-pore complexes around the envelope -->
+  <g fill=&quot;var(--memb)&quot; stroke=&quot;var(--nucst)&quot; stroke-width=&quot;1.4&quot; opacity=&quot;0.9&quot;>
+    <circle cx=&quot;470&quot; cy=&quot;153&quot; r=&quot;4.5&quot;/><circle cx=&quot;536&quot; cy=&quot;184&quot; r=&quot;4.5&quot;/><circle cx=&quot;404&quot; cy=&quot;184&quot; r=&quot;4.5&quot;/>
+    <circle cx=&quot;391&quot; cy=&quot;300&quot; r=&quot;4.5&quot;/><circle cx=&quot;470&quot; cy=&quot;323&quot; r=&quot;4.5&quot;/></g>
+  <circle id=&quot;pore&quot; cx=&quot;554&quot; cy=&quot;256&quot; r=&quot;10&quot; fill=&quot;var(--memb)&quot; stroke=&quot;var(--nucst)&quot; stroke-width=&quot;2&quot;/>
+
+  <path id=&quot;er&quot; d=&quot;M554,290 C618,290 654,320 670,362 C684,398 674,442 638,460&quot;
+        fill=&quot;none&quot; stroke=&quot;var(--er)&quot; stroke-width=&quot;10&quot; stroke-linecap=&quot;round&quot; opacity=&quot;0.85&quot;/>
+  <g id=&quot;erRibos&quot; fill=&quot;var(--org)&quot;></g>
+
+  <g id=&quot;golgi&quot; transform=&quot;translate(710,382)&quot;>
+    <path d=&quot;M-46,-20 C-10,-34 22,-34 52,-18&quot; fill=&quot;none&quot; stroke=&quot;var(--golgi)&quot; stroke-width=&quot;8&quot; stroke-linecap=&quot;round&quot;/>
+    <path d=&quot;M-50,-4 C-12,-18 24,-18 56,-2&quot; fill=&quot;none&quot; stroke=&quot;var(--golgi)&quot; stroke-width=&quot;8&quot; stroke-linecap=&quot;round&quot;/>
+    <path d=&quot;M-46,12 C-10,-2 22,-2 52,14&quot; fill=&quot;none&quot; stroke=&quot;var(--golgi)&quot; stroke-width=&quot;8&quot; stroke-linecap=&quot;round&quot;/></g>
+
+  <g class=&quot;lbl&quot; fill=&quot;var(--ink)&quot;>
+    <text x=&quot;470&quot; y=&quot;144&quot; text-anchor=&quot;middle&quot;>nucleus</text>
+    <text x=&quot;586&quot; y=&quot;252&quot;>nuclear pore</text>
+    <text x=&quot;698&quot; y=&quot;326&quot;>ER + ribosomes</text>
+    <text x=&quot;710&quot; y=&quot;430&quot; text-anchor=&quot;middle&quot;>Golgi</text>
+    <text x=&quot;490&quot; y=&quot;566&quot; text-anchor=&quot;middle&quot;>chloroplast</text>
+    <text x=&quot;250&quot; y=&quot;150&quot;>mitochondrion</text>
+    <text x=&quot;150&quot; y=&quot;358&quot; text-anchor=&quot;end&quot;>eyespot</text>
+    <text x=&quot;488&quot; y=&quot;28&quot; text-anchor=&quot;middle&quot;>flagella</text></g>
+
+  <!-- purification bench -->
+  <g id=&quot;bench&quot;>
+    <line x1=&quot;60&quot; y1=&quot;700&quot; x2=&quot;920&quot; y2=&quot;700&quot; stroke=&quot;var(--benchline)&quot; stroke-width=&quot;3&quot;/>
+    <text x=&quot;70&quot; y=&quot;672&quot; class=&quot;benchlbl&quot;>PURIFICATION BENCH</text>
+    <g id=&quot;benchStations&quot;></g>
+  </g>
+
+  <g id=&quot;mrnaTrack&quot; opacity=&quot;0&quot;>
+    <rect x=&quot;330&quot; y=&quot;342&quot; width=&quot;300&quot; height=&quot;6&quot; rx=&quot;3&quot; fill=&quot;var(--mrna)&quot;/>
+    <circle id=&quot;ribosome&quot; cx=&quot;330&quot; cy=&quot;345&quot; r=&quot;15&quot; fill=&quot;var(--org)&quot; opacity=&quot;0.95&quot;/>
+    <text x=&quot;480&quot; y=&quot;380&quot; text-anchor=&quot;middle&quot; class=&quot;orgtiny&quot;>translation — ribosome dwell &amp;prop; 1 / codon adaptiveness</text></g>
+
+  <g id=&quot;cargo&quot;>
+    <circle id=&quot;cargoHalo&quot; cx=&quot;470&quot; cy=&quot;238&quot; r=&quot;18&quot; fill=&quot;none&quot; stroke=&quot;var(--cargo)&quot; stroke-width=&quot;2&quot; opacity=&quot;0.5&quot;/>
+    <circle id=&quot;cargoDot&quot; cx=&quot;470&quot; cy=&quot;238&quot; r=&quot;16&quot; fill=&quot;var(--panel)&quot; stroke=&quot;var(--cargo)&quot; stroke-width=&quot;2.5&quot;/>
+    <g id=&quot;cargoGlyph&quot;></g></g>
+</svg>
+
+
+  <div class=&quot;readout&quot; id=&quot;readout&quot;>
+    <div class=&quot;rhead&quot;><span id=&quot;rGlyph&quot; class=&quot;rglyph&quot;></span>
+      <div><div id=&quot;rTitle&quot; class=&quot;rtitle&quot;>Ready</div>
+        <div id=&quot;rProg&quot; class=&quot;rprog&quot;></div></div></div>
+    <div id=&quot;rParams&quot; class=&quot;rparams&quot;></div>
+  </div>
+
+  <div class=&quot;cfoot&quot;>
+    <div class=&quot;ctrls&quot;>
+      <button id=&quot;btnPlay&quot;>&amp;#9654; Play</button>
+      <button id=&quot;btnPrev&quot;>&amp;#8592;</button><button id=&quot;btnNext&quot;>&amp;#8594;</button>
+      <button id=&quot;btnRestart&quot;>&amp;#8635;</button>
+      <label>speed <input id=&quot;spd&quot; type=&quot;range&quot; min=&quot;0.5&quot; max=&quot;3&quot; step=&quot;0.5&quot; value=&quot;1&quot;></label>
+    </div>
+  </div>
+  <p class=&quot;disc&quot;>Original schematic (not microscopy). Every value is computed from the validated
+  scan, the transparent expression ensemble, and published biophysics/purification rules — each
+  parameter carries its citation. It is a model and a set of rules, not an observed movie of the protein.</p>
+</div>
+
+<style>
+:root{
+  --bg:#f6f8fb;--panel:#fff;--ink:#1c2733;--sub:#5a6b7b;--line:#e3e9f0;
+  --cyto0:#eef6ff;--cyto1:#d7e8fb;--wall:#c7dcf0;--memb:#3f6f9f;
+  --chl0:#8fd39a;--chl1:#3f9d63;--chlst:#2e7d4f;--pyr0:#eaf7ee;--pyr1:#bfe6c9;
+  --nuc0:#e7dcfb;--nuc1:#c3a9ef;--nucst:#7a5bb0;--eye:#e8663a;
+  --mito:#d98cc4;--er:#f0b36b;--golgi:#e0a34e;--org:#c05a2e;--mrna:#8a6bd6;
+  --cargo:#1f7ae0;--glyco:#2e9d7c;--good:#1f9d55;--warn:#d98a1f;--bad:#cf4b3a;
+  --benchline:#9fb0c2;--track:#eef1f5;}
+@media(prefers-color-scheme:dark){:root{
+  --bg:#0f151d;--panel:#161f2b;--ink:#e7eef6;--sub:#9fb0c2;--line:#26323f;
+  --cyto0:#16283b;--cyto1:#102033;--wall:#1b3450;--memb:#5b90c4;
+  --chl0:#2f7a4c;--chl1:#175f38;--chlst:#4fbf7f;--pyr0:#1d3b2a;--pyr1:#255a3c;
+  --nuc0:#39295e;--nuc1:#5a3f8f;--nucst:#b79be6;--eye:#ff7a4a;
+  --mito:#b95fa3;--er:#d9954a;--golgi:#c98a37;--org:#e07a4a;--mrna:#a487e6;
+  --cargo:#4aa0ff;--glyco:#43c79b;--good:#37c07a;--warn:#e6a53a;--bad:#e5674f;
+  --benchline:#3a4a5c;--track:#1c2733;}}
+:root[data-theme=&quot;dark&quot;]{--bg:#0f151d;--panel:#161f2b;--ink:#e7eef6;--sub:#9fb0c2;--line:#26323f;--cyto0:#16283b;--cyto1:#102033;--wall:#1b3450;--memb:#5b90c4;--chl0:#2f7a4c;--chl1:#175f38;--chlst:#4fbf7f;--pyr0:#1d3b2a;--pyr1:#255a3c;--nuc0:#39295e;--nuc1:#5a3f8f;--nucst:#b79be6;--eye:#ff7a4a;--mito:#b95fa3;--er:#d9954a;--golgi:#c98a37;--org:#e07a4a;--mrna:#a487e6;--cargo:#4aa0ff;--glyco:#43c79b;--good:#37c07a;--warn:#e6a53a;--bad:#e5674f;--benchline:#3a4a5c;--track:#1c2733;}
+:root[data-theme=&quot;light&quot;]{--bg:#f6f8fb;--panel:#fff;--ink:#1c2733;--sub:#5a6b7b;--line:#e3e9f0;--cyto0:#eef6ff;--cyto1:#d7e8fb;--wall:#c7dcf0;--memb:#3f6f9f;--chl0:#8fd39a;--chl1:#3f9d63;--chlst:#2e7d4f;--pyr0:#eaf7ee;--pyr1:#bfe6c9;--nuc0:#e7dcfb;--nuc1:#c3a9ef;--nucst:#7a5bb0;--eye:#e8663a;--mito:#d98cc4;--er:#f0b36b;--golgi:#e0a34e;--org:#c05a2e;--mrna:#8a6bd6;--cargo:#1f7ae0;--glyco:#2e9d7c;--good:#1f9d55;--warn:#d98a1f;--bad:#cf4b3a;--benchline:#9fb0c2;--track:#eef1f5;}
+*{box-sizing:border-box}
+.cellwrap{font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:var(--ink);
+  background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px;
+  max-width:1060px;margin:0 auto;box-shadow:0 8px 30px rgba(20,40,70,.08)}
+.chead{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:8px}
+.ctitle{font-size:20px;font-weight:700}.csub{color:var(--sub);font-size:13px;margin-top:2px}
+.cgauge{display:flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:6px 12px}
+.gnum{font-size:26px;font-weight:800;line-height:1}
+.glab{font-size:10px;color:var(--sub);text-transform:uppercase;letter-spacing:.4px}
+.lvstrip{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;margin:8px 0 6px}
+.lvcell{border:1px solid var(--line);border-top:3px solid var(--lc);border-radius:8px;
+  padding:5px 7px;background:var(--bg)}
+.lvcell .lvh{display:flex;align-items:center;gap:5px}
+.lvcell .lvn{font-size:9px;font-weight:700;color:var(--sub)}
+.lvcell .lvi{font-size:13px;font-weight:800;margin-left:auto;color:var(--lc)}
+.lvcell .lvt{font-size:10px;font-weight:700;margin-top:2px;color:var(--ink);line-height:1.2}
+.stagebar{display:flex;gap:5px;margin:6px 0 8px;flex-wrap:wrap}
+.stagebar .st{border-left:3px solid var(--chipc,var(--line))}
+.stagebar .st{font-size:10.5px;padding:5px 7px;border-radius:7px;background:var(--bg);
+  border:1px solid var(--line);color:var(--sub);transition:.2s;cursor:pointer;white-space:nowrap}
+.stagebar .st.active{background:var(--cargo);color:#fff;border-color:var(--cargo);font-weight:700}
+.stagebar .st.done{color:var(--good);border-color:var(--good)}
+#scene{width:100%;height:auto;display:block}
+.lbl text{font-size:12px;font-weight:600}.orgtiny{font-size:11px;fill:var(--sub)}
+.benchlbl{font-size:12px;font-weight:700;fill:var(--sub);letter-spacing:.5px}
+.readout{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-top:6px;min-height:120px}
+.rhead{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.rglyph{width:44px;height:44px;flex:0 0 44px;display:flex;align-items:center;justify-content:center;
+  background:var(--panel);border:1px solid var(--line);border-radius:10px}
+.rglyph svg{width:30px;height:30px}
+.rtitle{font-size:15px;font-weight:700}.rprog{font-size:11px;color:var(--sub)}
+.rparams{display:flex;flex-direction:column;gap:7px}
+.prow{display:grid;grid-template-columns:22px minmax(140px,1.4fr) auto 1fr;gap:8px;align-items:center}
+.pico{width:18px;height:18px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:800;color:#fff}
+.pico.ok{background:var(--good)}.pico.warn{background:var(--warn)}.pico.bad{background:var(--bad)}
+.pico.info{background:var(--sub)}
+.plabel{font-size:12.5px;color:var(--ink)}.pval{font-size:12.5px;font-weight:650;text-align:right;font-variant-numeric:tabular-nums}
+.pscale{height:7px;background:var(--track);border:1px solid var(--line);border-radius:999px;overflow:hidden}
+.pfill{height:100%;border-radius:999px}
+.pdetail{grid-column:2 / 5;font-size:11px;color:var(--sub);line-height:1.45;margin:-1px 0 3px}
+.pref{grid-column:2 / 5;font-size:10px;color:var(--sub);opacity:.8;font-style:italic}
+.cfoot{margin-top:10px}
+.ctrls{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--sub);flex-wrap:wrap}
+.ctrls button{font:inherit;font-size:13px;border:1px solid var(--line);background:var(--bg);color:var(--ink);
+  border-radius:9px;padding:6px 11px;cursor:pointer}.ctrls button:hover{border-color:var(--cargo)}
+.disc{font-size:11px;color:var(--sub);margin:10px 2px 0;line-height:1.5}
+#cargoHalo{animation:pulse 1.7s ease-in-out infinite}
+@keyframes pulse{0%,100%{r:16;opacity:.5}50%{r:27;opacity:0}}
+@media(prefers-reduced-motion:reduce){#cargoHalo{animation:none}}
+@media(max-width:640px){.prow{grid-template-columns:20px 1fr auto;}.pscale{display:none}}
+</style>
+
+<script>
+var DATA = {&quot;name&quot;: &quot;demo_cassette&quot;, &quot;epi&quot;: 1.4, &quot;band&quot;: &quot;LIKELY POOR \u2014 redesign recommended&quot;, &quot;loc&quot;: &quot;cytosolic&quot;, &quot;landscape&quot;: [0.19467592592592592, 0.17128139085640695, 1.0, 1.0, 1.0, 0.19467592592592592, 0.17128139085640695, 1.0, 0.1469691193290126, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.15286270150083378, 0.19988979198236673, 1.0, 1.0, 1.0, 1.0, 1.0, 0.10926234054353856, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.32104156558305036, 0.057253760310528874, 0.05207785376117833, 1.0, 0.2753809830435716, 0.07990550305725404, 0.05207785376117833, 0.043846611177170036, 1.0, 1.0, 0.573198627525734, 1.0, 1.0, 0.10926234054353856, 1.0, 1.0, 1.0, 1.0, 1.0, 0.19467592592592592], &quot;biophys&quot;: {&quot;length&quot;: 49, &quot;mw_kda&quot;: 5.0, &quot;pI&quot;: 9.08, &quot;gravy&quot;: -0.786, &quot;aromaticity&quot;: 0.02}, &quot;structure&quot;: {&quot;source&quot;: &quot;sequence proxy (TOP-IDP)&quot;, &quot;mean_confidence&quot;: 51.0, &quot;n_residues&quot;: 49, &quot;segments&quot;: [{&quot;start&quot;: 1, &quot;end&quot;: 7, &quot;kind&quot;: &quot;flexible / disordered&quot;, &quot;mean&quot;: 51.0}, {&quot;start&quot;: 17, &quot;end&quot;: 49, &quot;kind&quot;: &quot;flexible / disordered&quot;, &quot;mean&quot;: 49.0}], &quot;plain_summary&quot;: &quot;Overall this protein looks largely flexible/disordered \u2014 it may not settle into one fixed shape, which can affect stability, solubility and activity.  Likely-flexible region(s): 1\u20137, 17\u201349 \u2014 good places for linkers/tags, but watch for protease-sensitive or aggregation-prone stretches.  (This is a sequence-based order/disorder estimate, not an AlphaFold structure \u2014 wire an AlphaFold3/Boltz plugin for a real fold.)&quot;, &quot;notes&quot;: [&quot;Order/disorder proxy; higher = more likely to fold. TOP-IDP scale.&quot;]}, &quot;purification&quot;: {&quot;tags&quot;: [], &quot;strategy&quot;: &quot;Cation exchange (S) (property-based capture)&quot;, &quot;elp&quot;: null, &quot;intein&quot;: null, &quot;affinity&quot;: null, &quot;steps&quot;: [], &quot;notes&quot;: [&quot;No purification tag detected \u2014 the plan below is built from the protein's own properties; adding an ELP-intein (non-chromatographic) or His tag would simplify capture.&quot;], &quot;recommendations&quot;: [{&quot;method&quot;: &quot;Cation exchange (S)&quot;, &quot;mode&quot;: &quot;chromatographic&quot;, &quot;phase&quot;: &quot;capture&quot;, &quot;basis&quot;: &quot;pI \u2248 9.08: net-positive near pH 5.5\u20136.5 \u2192 binds an S (sulfopropyl) resin&quot;, &quot;buffer&quot;: &quot;bind at pH 5.5\u20136.5 in low salt; elute on a NaCl gradient&quot;, &quot;ref&quot;: &quot;IEX theory&quot;}, {&quot;method&quot;: &quot;Ammonium-sulfate precipitation (salting-out)&quot;, &quot;mode&quot;: &quot;non-chromatographic&quot;, &quot;phase&quot;: &quot;capture / concentrate&quot;, &quot;basis&quot;: &quot;cheap, scalable concentration by hydrophobicity (GRAVY -0.786); a good front step before HIC&quot;, &quot;buffer&quot;: &quot;raise (NH4)2SO4 stepwise; spin; resolubilise the pellet&quot;, &quot;ref&quot;: &quot;Wingfield 1998&quot;}, {&quot;method&quot;: &quot;Size-exclusion (SEC)&quot;, &quot;mode&quot;: &quot;chromatographic&quot;, &quot;phase&quot;: &quot;polish&quot;, &quot;basis&quot;: &quot;MW \u2248 5.0 kDa \u2014 final polishing, buffer exchange, and oligomeric-state check; pick a matrix whose fractionation range spans 5.0 kDa&quot;, &quot;buffer&quot;: &quot;isocratic; removes aggregates&quot;, &quot;ref&quot;: &quot;SEC theory&quot;}], &quot;workflow&quot;: [{&quot;phase&quot;: &quot;source&quot;, &quot;method&quot;: &quot;Cytosolic&quot;, &quot;mode&quot;: &quot;prep&quot;, &quot;basis&quot;: &quot;Cytosolic \u2014 lyse cells and clarify the lysate before capture.&quot;}, {&quot;phase&quot;: &quot;capture&quot;, &quot;method&quot;: &quot;Cation exchange (S)&quot;, &quot;mode&quot;: &quot;chromatographic&quot;, &quot;basis&quot;: &quot;pI \u2248 9.08: net-positive near pH 5.5\u20136.5 \u2192 binds an S (sulfopropyl) resin&quot;}, {&quot;phase&quot;: &quot;polish&quot;, &quot;method&quot;: &quot;Size-exclusion (SEC)&quot;, &quot;mode&quot;: &quot;chromatographic&quot;, &quot;basis&quot;: &quot;MW \u2248 5.0 kDa \u2014 final polishing, buffer exchange, and oligomeric-state check; pick a matrix whose fractionation range spans 5.0 kDa&quot;}], &quot;considerations&quot;: [{&quot;topic&quot;: &quot;Source&quot;, &quot;tag&quot;: &quot;lyse&quot;, &quot;note&quot;: &quot;Cytosolic \u2014 lyse cells and clarify the lysate before capture.&quot;}, {&quot;topic&quot;: &quot;Redox&quot;, &quot;tag&quot;: &quot;non-reducing&quot;, &quot;note&quot;: &quot;Even cysteine count \u2192 likely disulfide bonds; keep buffers non-reducing (no DTT/\u03b2-ME). Note this conflicts with thiol-inducible intein cleavage \u2014 choose a pH/temperature-controlled intein instead.&quot;}], &quot;biophysics&quot;: {&quot;length&quot;: 49, &quot;mw_kda&quot;: 5.0, &quot;pI&quot;: 9.08, &quot;gravy&quot;: -0.786, &quot;aromaticity&quot;: 0.02}, &quot;localization&quot;: &quot;cytosolic&quot;}, &quot;checkpoints&quot;: [{&quot;key&quot;: &quot;gene&quot;, &quot;title&quot;: &quot;Gene construct (DNA)&quot;, &quot;symbol&quot;: &quot;dna&quot;, &quot;organelle&quot;: &quot;nucleus&quot;, &quot;level&quot;: &quot;pretranscript&quot;, &quot;params&quot;: [{&quot;label&quot;: &quot;Length&quot;, &quot;value&quot;: &quot;148 nt&quot;, &quot;scale&quot;: null, &quot;status&quot;: &quot;info&quot;, &quot;ref&quot;: &quot;&quot;, &quot;detail&quot;: &quot;&quot;}, {&quot;label&quot;: &quot;GC content&quot;, &quot;value&quot;: &quot;70.3%&quot;, &quot;scale&quot;: 70.3, &quot;status&quot;: &quot;ok&quot;, &quot;ref&quot;: &quot;Barahimipour 2015 (low GC silences in Cr)&quot;, &quot;detail&quot;: &quot;Cr nuclear genes are GC-rich (~66%); low GC is the silencing hazard.&quot;}, {&quot;label&quot;: &quot;Type IIS / cloning sites&quot;, &quot;value&quot;: &quot;present&quot;, &quot;scale&quot;: null, &quot;status&quot;: &quot;bad&quot;, &quot;ref&quot;: &quot;MoClo / Golden Gate&quot;, &quot;detail&quot;: &quot;BsaI site (GGTCTC, + strand) in cds. Domesticate before MoClo assembly.&quot;}]}, {&quot;key&quot;: &quot;transcription&quot;, &quot;title&quot;: &quot;Transcription -> pre-mRNA&quot;, &quot;symbol&quot;: &quot;rna&quot;, &quot;organelle&quot;: &quot;nucleus&quot;, &quot;level&quot;: &quot;transcript&quot;, &quot;params&quot;: [{&quot;label&quot;: &quot;Silencing / GC-trough risk&quot;, &quot;value&quot;: &quot;none&quot;, &quot;scale&quot;: null, &quot;status&quot;: &quot;ok&quot;, &quot;ref&quot;: &quot;Schroda 2019; Neupert/Bock UVM strains&quot;, &quot;detail&quot;: &quot;Chromatin/strain-driven; use a silencing-deficient strain + intron.&quot;}]}, {&quot;key&quot;: &quot;splice&quot;, &quot;title&quot;: &quot;Splicing&quot;, &quot;symbol&quot;: &quot;spliceosome&quot;, &quot;organelle&quot;: &quot;nucleus&quot;, &quot;level&quot;: &quot;posttranscript&quot;, &quot;params&quot;: [{&quot;label&quot;: &quot;Cryptic-splice risk&quot;, &quot;value&quot;: &quot;low&quot;, &quot;scale&quot;: null, &quot;status&quot;: &quot;ok&quot;, &quot;ref&quot;: &quot;Zeng &amp; Li 2022 (Pangolin)&quot;, &quot;detail&quot;: &quot;&quot;}, {&quot;label&quot;: &quot;Introns&quot;, &quot;value&quot;: &quot;asset in Cr (e.g. rbcS2 intron 1 boosts expression)&quot;, &quot;scale&quot;: null, &quot;status&quot;: &quot;info&quot;, &quot;ref&quot;: &quot;Baier 2018&quot;, &quot;detail&quot;: &quot;&quot;}]}, {&quot;key&quot;: &quot;polya&quot;, &quot;title&quot;: &quot;3' cleavage &amp; poly(A)&quot;, &quot;symbol&quot;: &quot;polya&quot;, &quot;organelle&quot;: &quot;nucleusEdge&quot;, &quot;level&quot;: &quot;posttranscript&quot;, &quot;params&quot;: [{&quot;label&quot;: &quot;Premature poly(A) in CDS&quot;, &quot;value&quot;: &quot;PRESENT&quot;, &quot;scale&quot;: null, &quot;status&quot;: &quot;bad&quot;, &quot;ref&quot;: &quot;Cr NUE = TGTAA (not AAUAAA)&quot;, &quot;detail&quot;: &quot;Premature poly(A) signal TGTAA inside the CDS in a G/C-rich context (GC 90%). Risks 3' cleavage and a truncated transcript.&quot;}, {&quot;label&quot;: &quot;mRNA-destabilising elements (AREs)&quot;, &quot;value&quot;: &quot;none&quot;, &quot;scale&quot;: null, &quot;status&quot;: &quot;ok&quot;, &quot;ref&quot;: &quot;Barreau 2005&quot;, &quot;detail&quot;: &quot;&quot;}]}, {&quot;key&quot;: &quot;export&quot;, &quot;title&quot;: &quot;Nuclear export&quot;, &quot;symbol&quot;: &quot;pore&quot;, &quot;organelle&quot;: &quot;pore&quot;, &quot;level&quot;: &quot;posttranscript&quot;, &quot;params&quot;: [{&quot;label&quot;: &quot;Mature mRNA&quot;, &quot;value&quot;: &quot;capped, spliced, poly-adenylated&quot;, &quot;scale&quot;: null, &quot;status&quot;: &quot;ok&quot;, &quot;ref&quot;: &quot;&quot;, &quot;detail&quot;: &quot;&quot;}]}, {&quot;key&quot;: &quot;initiation&quot;, &quot;title&quot;: &quot;Translation initiation (5'UTR)&quot;, &quot;symbol&quot;: &quot;pore&quot;, &quot;organelle&quot;: &quot;ribo&quot;, &quot;level&quot;: &quot;pretranslation&quot;, &quot;params&quot;: [{&quot;label&quot;: &quot;Start codon (ATG)&quot;, &quot;value&quot;: &quot;MISSING&quot;, &quot;scale&quot;: null, &quot;status&quot;: &quot;bad&quot;, &quot;ref&quot;: &quot;Kozak&quot;, &quot;detail&quot;: &quot;CDS does not begin with ATG.&quot;}, {&quot;label&quot;: &quot;Upstream AUG / uORF&quot;, &quot;value&quot;: &quot;none&quot;, &quot;scale&quot;: null, &quot;status&quot;: &quot;ok&quot;, &quot;ref&quot;: &quot;Kozak; Calvo 2009&quot;, &quot;detail&quot;: &quot;&quot;}, {&quot;label&quot;: &quot;5' mRNA start-region structure&quot;, &quot;value&quot;: &quot;structured&quot;, &quot;scale&quot;: null, &quot;status&quot;: &quot;bad&quot;, &quot;ref&quot;: &quot;Kudla 2009; LinearDesign (Zhang 2020)&quot;, &quot;detail&quot;: &quot;CDS does not begin with ATG (starts with 'GCA').&quot;}]}, {&quot;key&quot;: &quot;translation&quot;, &quot;title&quot;: &quot;Translation (elongation)&quot;, &quot;symbol&quot;: &quot;ribosome&quot;, &quot;organelle&quot;: &quot;ribo&quot;, &quot;level&quot;: &quot;translation&quot;, &quot;params&quot;: [{&quot;label&quot;: &quot;Codon adaptation (RCA)&quot;, &quot;value&quot;: 0.0, &quot;scale&quot;: 0.0, &quot;status&quot;: &quot;warn&quot;, &quot;ref&quot;: &quot;Sharp &amp; Li 1987; Presnyak 2015&quot;, &quot;detail&quot;: &quot;Percentile vs 5,000 well-expressed native Cr genes.&quot;}, {&quot;label&quot;: &quot;tRNA adaptation (tAI)&quot;, &quot;value&quot;: 1.0, &quot;scale&quot;: 1.0, &quot;status&quot;: &quot;warn&quot;, &quot;ref&quot;: &quot;dos Reis 2004&quot;, &quot;detail&quot;: &quot;&quot;}], &quot;landscape&quot;: true}, {&quot;key&quot;: &quot;folding&quot;, &quot;title&quot;: &quot;Folding&quot;, &quot;symbol&quot;: &quot;fold&quot;, &quot;organelle&quot;: &quot;fold&quot;, &quot;level&quot;: &quot;posttranslation&quot;, &quot;params&quot;: [{&quot;label&quot;: &quot;Structure confidence&quot;, &quot;value&quot;: &quot;51/100 (sequence proxy (TOP-IDP))&quot;, &quot;scale&quot;: 51.0, &quot;status&quot;: &quot;bad&quot;, &quot;ref&quot;: &quot;TOP-IDP (Campen 2008) / pLDDT&quot;, &quot;detail&quot;: &quot;Overall this protein looks largely flexible/disordered \u2014 it may not settle into one fixed shape, which can affect stability, solubility and activity.  Likely-flexible region(s): 1\u20137, 17\u201349 \u2014 good places for linkers/tags, but watch for protease-sensitive or aggregation-prone stretches.  (This is a sequence-based order/disorder estimate, not an AlphaFold structure \u2014 wire an AlphaFold3/Boltz plugin for a real fold.)&quot;}, {&quot;label&quot;: &quot;Size&quot;, &quot;value&quot;: &quot;5.0 kDa (49 aa)&quot;, &quot;scale&quot;: null, &quot;status&quot;: &quot;info&quot;, &quot;ref&quot;: &quot;&quot;, &quot;detail&quot;: &quot;&quot;}, {&quot;label&quot;: &quot;Isoelectric point (pI)&quot;, &quot;value&quot;: 9.08, &quot;scale&quot;: null, &quot;status&quot;: &quot;info&quot;, &quot;ref&quot;: &quot;ProtParam&quot;, &quot;detail&quot;: &quot;Set purification buffer pH away from pI to keep it soluble.&quot;}, {&quot;label&quot;: &quot;Hydropathy (GRAVY)&quot;, &quot;value&quot;: -0.786, &quot;scale&quot;: null, &quot;status&quot;: &quot;info&quot;, &quot;ref&quot;: &quot;Kyte-Doolittle&quot;, &quot;detail&quot;: &quot;Positive = hydrophobic (aggregation/solubility watch).&quot;}]}, {&quot;key&quot;: &quot;localise&quot;, &quot;title&quot;: &quot;Released into cytosol&quot;, &quot;symbol&quot;: &quot;protein&quot;, &quot;organelle&quot;: &quot;cyto&quot;, &quot;level&quot;: &quot;posttranslation&quot;, &quot;params&quot;: [{&quot;label&quot;: &quot;Predicted localisation&quot;, &quot;value&quot;: &quot;cytosolic&quot;, &quot;scale&quot;: null, &quot;status&quot;: &quot;ok&quot;, &quot;ref&quot;: &quot;DeepLoc 2.1 concept&quot;, &quot;detail&quot;: &quot;&quot;}]}, {&quot;key&quot;: &quot;purification_plan&quot;, &quot;title&quot;: &quot;Purification strategy (recommended)&quot;, &quot;symbol&quot;: &quot;bead&quot;, &quot;organelle&quot;: &quot;bench&quot;, &quot;level&quot;: &quot;posttranslation&quot;, &quot;params&quot;: [{&quot;label&quot;: &quot;Source&quot;, &quot;value&quot;: &quot;Cytosolic&quot;, &quot;scale&quot;: null, &quot;status&quot;: &quot;info&quot;, &quot;ref&quot;: &quot;prep&quot;, &quot;detail&quot;: &quot;Cytosolic \u2014 lyse cells and clarify the lysate before capture.&quot;}, {&quot;label&quot;: &quot;Capture&quot;, &quot;value&quot;: &quot;Cation exchange (S)&quot;, &quot;scale&quot;: null, &quot;status&quot;: &quot;ok&quot;, &quot;ref&quot;: &quot;chromatographic&quot;, &quot;detail&quot;: &quot;pI \u2248 9.08: net-positive near pH 5.5\u20136.5 \u2192 binds an S (sulfopropyl) resin&quot;}, {&quot;label&quot;: &quot;Polish&quot;, &quot;value&quot;: &quot;Size-exclusion (SEC)&quot;, &quot;scale&quot;: null, &quot;status&quot;: &quot;ok&quot;, &quot;ref&quot;: &quot;chromatographic&quot;, &quot;detail&quot;: &quot;MW \u2248 5.0 kDa \u2014 final polishing, buffer exchange, and oligomeric-state check; pick a matrix whose fractionation range spans 5.0 kDa&quot;}, {&quot;label&quot;: &quot;Redox&quot;, &quot;value&quot;: &quot;non-reducing&quot;, &quot;scale&quot;: null, &quot;status&quot;: &quot;info&quot;, &quot;ref&quot;: &quot;&quot;, &quot;detail&quot;: &quot;Even cysteine count \u2192 likely disulfide bonds; keep buffers non-reducing (no DTT/\u03b2-ME). Note this conflicts with thiol-inducible intein cleavage \u2014 choose a pH/temperature-controlled intein instead.&quot;}, {&quot;label&quot;: &quot;Protein for purification&quot;, &quot;value&quot;: &quot;5.0 kDa \u00b7 pI 9.08 \u00b7 GRAVY -0.786&quot;, &quot;scale&quot;: null, &quot;status&quot;: &quot;info&quot;, &quot;ref&quot;: &quot;ProtParam&quot;, &quot;detail&quot;: &quot;pI sets the ion-exchange type; GRAVY sets HIC; MW sets SEC.&quot;}]}, {&quot;key&quot;: &quot;notag&quot;, &quot;title&quot;: &quot;No purification tag&quot;, &quot;symbol&quot;: &quot;bench&quot;, &quot;organelle&quot;: &quot;bench&quot;, &quot;level&quot;: &quot;posttranslation&quot;, &quot;params&quot;: [{&quot;label&quot;: &quot;Recovery&quot;, &quot;value&quot;: &quot;add an ELP-intein (non-chromatographic) or His/affinity tag&quot;, &quot;scale&quot;: null, &quot;status&quot;: &quot;warn&quot;, &quot;ref&quot;: &quot;Banki 2005&quot;, &quot;detail&quot;: &quot;&quot;}]}]};
+(function(){
+  var svg=document.getElementById('scene'); if(!svg) return;
+  var NS='http://www.w3.org/2000/svg';
+  var s='var(--ink)', a='var(--cargo)';   // glyph colours (used early by the bench)
+  var dot=document.getElementById('cargoDot'), halo=document.getElementById('cargoHalo');
+  var glyphG=document.getElementById('cargoGlyph');
+  // the travelling cargo shows the molecule at each stage; map organelle-ish symbols to a molecule form
+  var MOLMAP={pore:'rna',er:'protein',bench:'protein',spliceosome:'rna',thermo:'protein',
+    scissors:'protein',bead:'protein',lysis:'protein',vesicle:'protein',glycan:'glycan',polya:'rna'};
+  var track=document.getElementById('mrnaTrack'), ribo=document.getElementById('ribosome');
+  document.getElementById('epiNum').textContent=Math.round(DATA.epi);
+  var eEl=document.getElementById('epiNum');
+  eEl.style.color=DATA.epi>=65?'var(--good)':DATA.epi>=40?'var(--warn)':'var(--bad)';
+  document.getElementById('locName').textContent=DATA.loc;
+
+  // ER-bound ribosome dots
+  var er=document.getElementById('er'),erR=document.getElementById('erRibos'),L=er.getTotalLength();
+  for(var t=0.12;t<0.95;t+=0.16){var pt=er.getPointAtLength(L*t);
+    var c=document.createElementNS(NS,'circle');c.setAttribute('cx',pt.x);c.setAttribute('cy',pt.y);
+    c.setAttribute('r',4.5);c.setAttribute('fill','var(--org)');erR.appendChild(c);}
+
+  // organelle coordinates
+  var ORG={nucleus:[470,238],nucleusEdge:[512,290],pore:[554,256],ribo:[480,345],
+    fold:[598,342],er:[636,420],golgi:[710,382],secreted:[946,300],membrane:[900,290],
+    cyto:[330,300]};
+
+  // lay out bench stations for 'bench' checkpoints
+  var benchCps=DATA.checkpoints.filter(function(c){return c.organelle==='bench';});
+  var bx0=140,bx1=860,by=700, bStations=document.getElementById('benchStations');
+  benchCps.forEach(function(c,i){
+    var x=benchCps.length>1?bx0+(bx1-bx0)*i/(benchCps.length-1):(bx0+bx1)/2;
+    c._xy=[x,by-4];
+    var g=document.createElementNS(NS,'g'); g.setAttribute('transform','translate('+x+','+(by)+')');
+    g.setAttribute('id','bs'+i); g.setAttribute('opacity','0.4');
+    var circle=document.createElementNS(NS,'circle'); circle.setAttribute('r',18);
+    circle.setAttribute('cy',-18); circle.setAttribute('fill','var(--panel)');
+    circle.setAttribute('stroke','var(--benchline)'); circle.setAttribute('stroke-width','2'); g.appendChild(circle);
+    var gl=document.createElementNS(NS,'g'); gl.setAttribute('transform','translate(-11,-29) scale(0.73)');
+    gl.innerHTML=glyphInner(c.symbol); g.appendChild(gl);
+    var tx=document.createElementNS(NS,'text'); tx.setAttribute('y',18); tx.setAttribute('text-anchor','middle');
+    tx.setAttribute('class','orgtiny'); tx.textContent=c.title.split(/[ (]/)[0]; g.appendChild(tx);
+    bStations.appendChild(g);
+  });
+  function xy(cp){ return cp._xy || ORG[cp.organelle] || [490,300]; }
+
+  // ---- scientific glyph library (inner markup drawn in a 0 0 30 30 box) ----
+  function glyphInner(k){
+    var G={
+     dna:'<path d=&quot;M9 3 C21 9 9 21 21 27 M21 3 C9 9 21 21 9 27&quot; stroke=&quot;'+a+'&quot; stroke-width=&quot;2&quot; fill=&quot;none&quot;/><path d=&quot;M11 7h8M11 12h8M11 18h8M11 23h8&quot; stroke=&quot;'+s+'&quot; stroke-width=&quot;1.4&quot;/>',
+     rna:'<path d=&quot;M6 20 C12 6 18 26 26 10&quot; stroke=&quot;'+a+'&quot; stroke-width=&quot;2.4&quot; fill=&quot;none&quot;/><circle cx=&quot;6&quot; cy=&quot;20&quot; r=&quot;2.4&quot; fill=&quot;'+s+'&quot;/>',
+     spliceosome:'<circle cx=&quot;15&quot; cy=&quot;15&quot; r=&quot;8&quot; fill=&quot;none&quot; stroke=&quot;'+a+'&quot; stroke-width=&quot;2&quot;/><path d=&quot;M15 7 C24 9 24 21 15 23&quot; stroke=&quot;'+s+'&quot; stroke-width=&quot;1.6&quot; fill=&quot;none&quot;/>',
+     polya:'<path d=&quot;M4 15h12&quot; stroke=&quot;'+s+'&quot; stroke-width=&quot;2&quot;/><text x=&quot;16&quot; y=&quot;19&quot; font-size=&quot;9&quot; font-weight=&quot;700&quot; fill=&quot;'+a+'&quot;>AAAA</text>',
+     pore:'<circle cx=&quot;15&quot; cy=&quot;15&quot; r=&quot;9&quot; fill=&quot;none&quot; stroke=&quot;'+a+'&quot; stroke-width=&quot;2&quot;/><circle cx=&quot;15&quot; cy=&quot;15&quot; r=&quot;3.4&quot; fill=&quot;'+s+'&quot;/>',
+     ribosome:'<ellipse cx=&quot;15&quot; cy=&quot;12&quot; rx=&quot;9&quot; ry=&quot;6&quot; fill=&quot;'+a+'&quot; opacity=&quot;0.85&quot;/><ellipse cx=&quot;15&quot; cy=&quot;20&quot; rx=&quot;7&quot; ry=&quot;5&quot; fill=&quot;'+s+'&quot; opacity=&quot;0.7&quot;/>',
+     fold:'<path d=&quot;M5 15 C10 5 12 25 16 15 C20 5 22 25 26 15&quot; stroke=&quot;'+a+'&quot; stroke-width=&quot;2.4&quot; fill=&quot;none&quot;/>',
+     er:'<path d=&quot;M5 9 C14 4 18 14 26 9 M5 15 C14 10 18 20 26 15 M5 21 C14 16 18 26 26 21&quot; stroke=&quot;'+a+'&quot; stroke-width=&quot;1.8&quot; fill=&quot;none&quot;/>',
+     glycan:'<path d=&quot;M15 26 V16 M15 16 L9 9 M15 16 L21 9&quot; stroke=&quot;'+s+'&quot; stroke-width=&quot;1.8&quot; fill=&quot;none&quot;/><rect x=&quot;12&quot; y=&quot;24&quot; width=&quot;6&quot; height=&quot;4&quot; fill=&quot;'+s+'&quot;/><circle cx=&quot;9&quot; cy=&quot;8&quot; r=&quot;3&quot; fill=&quot;'+a+'&quot;/><circle cx=&quot;21&quot; cy=&quot;8&quot; r=&quot;3&quot; fill=&quot;'+a+'&quot;/><circle cx=&quot;15&quot; cy=&quot;16&quot; r=&quot;3&quot; fill=&quot;'+a+'&quot;/>',
+     vesicle:'<circle cx=&quot;15&quot; cy=&quot;15&quot; r=&quot;9&quot; fill=&quot;none&quot; stroke=&quot;'+a+'&quot; stroke-width=&quot;2&quot;/><circle cx=&quot;15&quot; cy=&quot;15&quot; r=&quot;3.6&quot; fill=&quot;'+s+'&quot;/>',
+     protein:'<path d=&quot;M9 12 C7 20 16 26 21 19 C26 12 18 6 13 9 C10 10 10 11 9 12Z&quot; fill=&quot;'+a+'&quot; opacity=&quot;0.85&quot;/>',
+     lysis:'<path d=&quot;M15 4 L18 12 L26 12 L20 17 L23 26 L15 21 L7 26 L10 17 L4 12 L12 12 Z&quot; fill=&quot;none&quot; stroke=&quot;'+a+'&quot; stroke-width=&quot;1.6&quot;/>',
+     thermo:'<rect x=&quot;12&quot; y=&quot;4&quot; width=&quot;6&quot; height=&quot;16&quot; rx=&quot;3&quot; fill=&quot;none&quot; stroke=&quot;'+s+'&quot; stroke-width=&quot;1.6&quot;/><circle cx=&quot;15&quot; cy=&quot;23&quot; r=&quot;5&quot; fill=&quot;'+a+'&quot;/><rect x=&quot;13.5&quot; y=&quot;10&quot; width=&quot;3&quot; height=&quot;12&quot; fill=&quot;'+a+'&quot;/>',
+     bead:'<circle cx=&quot;15&quot; cy=&quot;15&quot; r=&quot;9&quot; fill=&quot;'+a+'&quot; opacity=&quot;0.3&quot; stroke=&quot;'+a+'&quot; stroke-width=&quot;1.6&quot;/><path d=&quot;M9 15h12M15 9v12&quot; stroke=&quot;'+s+'&quot; stroke-width=&quot;1.2&quot;/>',
+     scissors:'<circle cx=&quot;9&quot; cy=&quot;9&quot; r=&quot;3.4&quot; fill=&quot;none&quot; stroke=&quot;'+a+'&quot; stroke-width=&quot;1.8&quot;/><circle cx=&quot;9&quot; cy=&quot;21&quot; r=&quot;3.4&quot; fill=&quot;none&quot; stroke=&quot;'+a+'&quot; stroke-width=&quot;1.8&quot;/><path d=&quot;M11.5 10.5 L25 20 M11.5 19.5 L25 10&quot; stroke=&quot;'+s+'&quot; stroke-width=&quot;1.8&quot;/>',
+     vial:'<path d=&quot;M12 4 h6 v7 l4 12 a3 3 0 0 1 -3 4 h-8 a3 3 0 0 1 -3 -4 l4 -12 Z&quot; fill=&quot;none&quot; stroke=&quot;'+s+'&quot; stroke-width=&quot;1.6&quot;/><path d=&quot;M11 18 h8 l2 5 a3 3 0 0 1 -3 4 h-6 a3 3 0 0 1 -3 -4 Z&quot; fill=&quot;'+a+'&quot; opacity=&quot;0.75&quot;/>',
+     bench:'<rect x=&quot;5&quot; y=&quot;18&quot; width=&quot;20&quot; height=&quot;3&quot; fill=&quot;'+s+'&quot;/><rect x=&quot;8&quot; y=&quot;8&quot; width=&quot;4&quot; height=&quot;10&quot; fill=&quot;'+a+'&quot;/><rect x=&quot;18&quot; y=&quot;6&quot; width=&quot;4&quot; height=&quot;12&quot; fill=&quot;'+a+'&quot;/>'
+    };
+    return (G[k]||G.protein);
+  }
+  function glyph(k){return '<svg viewBox=&quot;0 0 30 30&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;>'+glyphInner(k)+'</svg>';}
+  var ICO={ok:'✓',warn:'!',bad:'✗',info:'i'};
+
+  // ---- six molecular-biology levels ----
+  var LV=[['pretranscript','Pre-transcription'],['transcript','Transcription'],
+    ['posttranscript','Post-transcription'],['pretranslation','Pre-translation'],
+    ['translation','Translation'],['posttranslation','Post-translation']];
+  var LVCOL={pretranscript:'#7a5bb0',transcript:'#256abf',posttranscript:'#2e8d6b',
+    pretranslation:'#c98a37',translation:'#c05a2e',posttranslation:'#b23b8f'};
+  var RANK={info:0,ok:1,warn:2,bad:3}, STMARK={0:['✓','var(--good)'],1:['✓','var(--good)'],
+    2:['!','var(--warn)'],3:['✗','var(--bad)']};
+  function levelStatus(key){var w=0; DATA.checkpoints.forEach(function(c){
+    if(c.level===key)(c.params||[]).forEach(function(p){w=Math.max(w,RANK[p.status||'info']);});}); return w;}
+  var strip=document.getElementById('lvstrip'); strip.innerHTML='';
+  LV.forEach(function(pair,i){var key=pair[0], w=levelStatus(key), m=STMARK[w];
+    var d=document.createElement('div'); d.className='lvcell'; d.style.setProperty('--lc',LVCOL[key]);
+    d.innerHTML='<div class=&quot;lvh&quot;><span class=&quot;lvn&quot;>'+(i+1)+'</span>'
+      +'<span class=&quot;lvi&quot; style=&quot;color:'+m[1]+'&quot;>'+m[0]+'</span></div>'
+      +'<div class=&quot;lvt&quot;>'+pair[1]+'</div>';
+    strip.appendChild(d);});
+
+  // stage rail (chips colour-coded by level)
+  var bar=document.getElementById('stagebar'); bar.innerHTML='';
+  var chips=DATA.checkpoints.map(function(c,i){var d=document.createElement('div');
+    d.className='st'; d.textContent=(i+1)+'. '+c.title.split(/[ (]/)[0];
+    d.style.borderLeft='3px solid '+(LVCOL[c.level]||'#9aa6b2');
+    d.onclick=function(){goto(i);}; bar.appendChild(d); return d;});
+
+  // ---- render one checkpoint's parameter panel ----
+  function scaleColor(st){return st==='bad'?'var(--bad)':st==='warn'?'var(--warn)':'var(--good)';}
+  function showParams(c,idx){
+    document.getElementById('rGlyph').innerHTML=glyph(c.symbol);
+    glyphG.innerHTML=glyphInner(MOLMAP[c.symbol]||c.symbol);   // morph the travelling molecule
+    document.getElementById('rTitle').textContent=c.title;
+    document.getElementById('rProg').textContent='Checkpoint '+(idx+1)+' of '+DATA.checkpoints.length
+      +(c.landscape?'  ·  translation landscape shown in-cell':'');
+    var box=document.getElementById('rParams'); box.innerHTML='';
+    c.params.forEach(function(p){
+      var row=document.createElement('div'); row.className='prow';
+      var st=p.status||'info';
+      var ico='<span class=&quot;pico '+st+'&quot;>'+ICO[st]+'</span>';
+      var scale=''; if(p.scale!==null &amp;&amp; p.scale!==undefined){
+        scale='<span class=&quot;pscale&quot;><span class=&quot;pfill&quot; style=&quot;width:'+Math.max(3,Math.min(100,p.scale))
+              +'%;background:'+scaleColor(st)+'&quot;></span></span>';
+      } else { scale='<span></span>'; }
+      row.innerHTML=ico+'<span class=&quot;plabel&quot;>'+esc(p.label)+'</span>'
+        +'<span class=&quot;pval&quot;>'+esc(String(p.value))+'</span>'+scale;
+      box.appendChild(row);
+      if(p.detail){var d=document.createElement('div'); d.className='pdetail'; d.textContent=p.detail; box.appendChild(d);}
+      if(p.ref){var r=document.createElement('div'); r.className='pref'; r.textContent='ref: '+p.ref; box.appendChild(r);}
+    });
+  }
+  function esc(s){return s.replace(/&amp;/g,'&amp;amp;').replace(/</g,'&amp;lt;').replace(/>/g,'&amp;gt;');}
+
+  // ---- animation ----
+  var land=(DATA.landscape&amp;&amp;DATA.landscape.length)?DATA.landscape:[1];
+  var mx=Math.max.apply(null,land)||1; land=land.map(function(v){return v/mx;});
+  var i=0, playing=false, raf=null, speed=1;
+  document.getElementById('spd').oninput=function(e){speed=parseFloat(e.target.value);};
+  function setDot(x,y){dot.setAttribute('cx',x);dot.setAttribute('cy',y);halo.setAttribute('cx',x);halo.setAttribute('cy',y);
+    glyphG.setAttribute('transform','translate('+(x-15)+','+(y-15)+')');}
+  function ease(t){return t<.5?2*t*t:-1+(4-2*t)*t;}
+
+  function lightBench(c){
+    benchCps.forEach(function(bc,bi){var g=document.getElementById('bs'+bi);
+      if(g) g.setAttribute('opacity', bc===c?'1':(bc._done?'0.85':'0.4'));});
+  }
+
+  function animateTo(idx,cb){
+    var c=DATA.checkpoints[idx], from=i>=0&amp;&amp;DATA.checkpoints[i]?xy(DATA.checkpoints[i]):xy(c), to=xy(c);
+    chips.forEach(function(ch,j){ch.classList.toggle('done',j<idx);ch.classList.toggle('active',j===idx);});
+    showParams(c,idx);
+    if(c.organelle==='bench'){lightBench(c);}
+    var xl=c.landscape; if(xl) track.setAttribute('opacity','1');
+    var start=performance.now(), dur=1100/speed;
+    function step(now){var t=Math.min(1,(now-start)/dur),e=ease(t);
+      setDot(from[0]+(to[0]-from[0])*e, from[1]+(to[1]-from[1])*e);
+      if(xl){var n=land.length, idx2=Math.min(n-1,Math.floor(t*n)), ad=land[idx2]||0.5;
+        ribo.setAttribute('cx',330+300*t); ribo.setAttribute('r',15-6*Math.min(1,ad));
+        ribo.setAttribute('fill',ad<0.35?'var(--bad)':ad<0.6?'var(--warn)':'var(--org)');}
+      if(t<1){raf=requestAnimationFrame(step);}
+      else{ if(xl){track.setAttribute('opacity','0');} if(c.organelle==='bench'){c._done=true;}
+        i=idx; if(cb)cb(); }
+    }
+    raf=requestAnimationFrame(step);
+  }
+  function playFrom(idx){ if(idx>=DATA.checkpoints.length){finish();return;}
+    animateTo(idx,function(){ setTimeout(function(){ if(playing) playFrom(idx+1); }, 650/speed); }); }
+  function finish(){playing=false;document.getElementById('btnPlay').innerHTML='&amp;#9654; Replay';}
+  function goto(idx){cancelAnimationFrame(raf);playing=false;
+    document.getElementById('btnPlay').innerHTML='&amp;#9654; Play';
+    benchCps.forEach(function(bc){bc._done=false;});
+    // jump: set state up to idx
+    var prev=idx>0?idx-1:idx; i=prev; animateTo(idx);}
+  function reset(){cancelAnimationFrame(raf);i=0;playing=false;
+    document.getElementById('btnPlay').innerHTML='&amp;#9654; Play';
+    benchCps.forEach(function(bc){bc._done=false;});
+    setDot(ORG.nucleus[0],ORG.nucleus[1]); track.setAttribute('opacity','0');
+    chips.forEach(function(ch){ch.className='st';}); showParams(DATA.checkpoints[0],0);
+    lightBench(null);}
+
+  document.getElementById('btnPlay').onclick=function(){
+    if(i>=DATA.checkpoints.length-1 &amp;&amp; !playing){reset();}
+    playing=!playing; this.innerHTML=playing?'&amp;#10073;&amp;#10073; Pause':'&amp;#9654; Play';
+    if(playing) playFrom(Math.max(0,i));
+  };
+  document.getElementById('btnNext').onclick=function(){goto(Math.min(DATA.checkpoints.length-1,i+1));};
+  document.getElementById('btnPrev').onclick=function(){goto(Math.max(0,i-1));};
+  document.getElementById('btnRestart').onclick=reset;
+  reset();
+
+  // report our content height to a hosting page so an embedding iframe can self-size.
+  // Harmless when not embedded (posts to self; no listener).
+  var lastH=0;
+  function reportHeight(){
+    var h=Math.max(document.body.scrollHeight, document.documentElement.scrollHeight);
+    if(Math.abs(h-lastH)<2) return; lastH=h;
+    try{ parent.postMessage({synatvisHeight:h}, '*'); }catch(e){}
+  }
+  window.addEventListener('load', reportHeight);
+  if(window.ResizeObserver){ try{ new ResizeObserver(reportHeight).observe(document.body); }catch(e){} }
+  setTimeout(reportHeight, 150);
+})();
+</script>
+</body></html>" title="animated gene-to-protein journey" loading="lazy"></iframe>
+<h2 class="svh" style="--sc:#2e8d6b">Protein fate &amp; modifications <span class="svsub">— translated protein-level layer, sequence heuristics</span></h2><div class="expcard"><div class="fchips"><span class="fchip"><b>cytosolic</b><span>Localisation</span></span><span class="fchip"><b>2 (possible disulfides)</b><span>Cysteines</span></span></div><ul class="fnotes"><li>2 cysteines → possible disulfide bonds (oxidising ER lumen).</li></ul><div class="ev">Heuristic, sequence-based (SignalP / DeepLoc / NetNGlyc concepts). These govern where the protein goes, not how much is made; verify with the dedicated predictors for decisions.</div></div>
+<h2 class="svh" style="--sc:#d03b3b">Serious <span class="svsub">— fix first</span> <span class="cnt">4</span></h2><div class="card" style="--cc:#d03b3b"><div class="ctop"><span class="ctitle">Start-of-gene readability</span><span class="tag">structure</span></div><div class="loc">the coding sequence (the gene itself) · position 0–3</div><p class="msg">coding sequence does not begin with ATG (starts with &#x27;GCA&#x27;).</p><div class="fix none">No automatic fix — may need a manual redesign.</div><div class="ev">translation initiation requires an AUG start</div></div><div class="card" style="--cc:#d03b3b"><div class="ctop"><span class="ctitle">Hidden lab cut-site inside your gene</span><span class="tag">cloning</span></div><div class="loc">the coding sequence (the gene itself) · position 45–51</div><p class="msg">BsaI site (GGTCTC, + strand) in cds. Remove before Golden Gate assembly.</p><div class="fix"><span>Suggested fix</span><code>silent DNA change (protein stays identical): codon 15 GGT-&gt;GGC (G)  [CTGGAGGGTCTCGCCAAG -&gt; CTGGAGGGCCTCGCCAAG]</code></div><div class="ev">Crozet 2018 (algal MoClo); Schroda 2019 — Type IIS domestication is standard for Cr</div></div><div class="card" style="--cc:#d03b3b"><div class="ctop"><span class="ctitle">Premature &quot;stop the message here&quot; signal</span><span class="tag">polya</span></div><div class="loc">the coding sequence (the gene itself) · position 66–71</div><p class="msg">Premature end-of-message signal (poly-A) TGTAA inside the coding sequence in a G/C-rich context (GC 90%). Risks 3&#x27; cleavage and a truncated message.</p><div class="fix"><span>Suggested fix</span><code>no clean silent fix — constraint conflict (no silent (protein unchanged) change removes the motif)</code></div><div class="ev">Shen 2008 (PMID 18493049); Zhao 2014 (PMC4025486): Cr NUE is UGUAA in G/C-rich context</div></div><div class="card" style="--cc:#d03b3b"><div class="ctop"><span class="ctitle">Premature &quot;stop the message here&quot; signal</span><span class="tag">polya</span></div><div class="loc">the coding sequence (the gene itself) · position 126–131</div><p class="msg">Premature end-of-message signal (poly-A) TGTAA inside the coding sequence in a G/C-rich context (GC 88%). Risks 3&#x27; cleavage and a truncated message.</p><div class="fix"><span>Suggested fix</span><code>no clean silent fix — constraint conflict (no silent (protein unchanged) change removes the motif)</code></div><div class="ev">Shen 2008 (PMID 18493049); Zhao 2014 (PMC4025486): Cr NUE is UGUAA in G/C-rich context</div></div><h2 class="svh" style="--sc:#e07b39">Worth checking <span class="cnt">1</span></h2><div class="card" style="--cc:#e07b39"><div class="ctop"><span class="ctitle">Genetic &#x27;spelling&#x27; the alga reads slowly</span><span class="tag">codon</span></div><div class="loc">the coding sequence (the gene itself) · position 87–114</div><p class="msg">Rare-codon cluster: 5 low-adaptiveness codons within 8 codons. In Cr this slows elongation and can destabilise the message.</p><div class="fix"><span>Suggested fix</span><code>codon 30 CGA-&gt;CGC; codon 31 GAA-&gt;GAG; codon 34 GGA-&gt;GGC; codon 35 GAA-&gt;GAG; codon 36 GTA-&gt;GTG</code></div><div class="ev">Barahimipour 2015 Plant J: Cr codon usage sets translational efficiency and mRNA stability</div></div><h2 class="svh" style="--sc:#6b7280">For information <span class="cnt">4</span></h2><div class="card" style="--cc:#6b7280"><div class="ctop"><span class="ctitle">Genetic &#x27;spelling&#x27; the alga reads slowly</span><span class="tag">codon</span></div><div class="loc">the coding sequence (the gene itself) · position 0–148</div><p class="msg">Whole-coding sequence codon-fit score is low (codon-fit=0.48 vs warn 0.60). One input, not a verdict — no expression score is implied.</p><div class="ev">Barahimipour 2015 Plant J: Cr codon usage sets translational efficiency and mRNA stability</div></div><div class="card" style="--cc:#6b7280"><div class="ctop"><span class="ctitle">Genetic &#x27;spelling&#x27; the alga reads slowly</span><span class="tag">codon</span></div><div class="loc">the coding sequence (the gene itself) · position 0–148</div><p class="msg">Low tRNA adaptation (tAI=0.32 vs native operating point 0.34); codons are poorly matched to the Cr tRNA pool.</p><div class="ev">dos Reis 2004 tAI; Cr tRNA gene counts from GtRNAdb (Crein5)</div></div><div class="card" style="--cc:#6b7280"><div class="ctop"><span class="ctitle">Gene-silencing risk (rough guidance only)</span><span class="tag">silencing</span><span class="tag heur">heuristic</span></div><div class="loc">the whole message · position 0–148</div><p class="msg">HEURISTIC guidance: Silencing in Cr is driven mainly by chromatin/strain, not by the gene&#x27;s DNA sequence itself. Use a silencing-deficient strain (e.g. UVM4/UVM11) and an intron-containing promoter, and include an intron (e.g. rbcS2 intron 1). This module reports only sequence-visible risk (GC troughs), never a verdict.</p><div class="ev">Schroda 2019; Neupert/Bock UVM strains — silencing is chromatin/strain-driven</div></div><div class="card" style="--cc:#6b7280"><div class="ctop"><span class="ctitle">Start-of-gene readability</span><span class="tag">structure</span></div><div class="loc">the coding sequence (the gene itself) · position 0–148</div><p class="msg">5&#x27; message folding dG -0.43 kcal/mol/nt (64% paired). More structure tends to stabilise the message (context, not a hazard).</p><div class="ev">ViennaRNA global fold (Zhang 2020, LinearDesign)</div></div>
+
+<footer>Transcript-level checks only · cannot see protein stability · no expression score ·
+<i>Chlamydomonas reinhardtii</i> nuclear only.
+A clean report is <b>not</b> a promise of expression. Generated by SynAT.Vis.</footer>
+<script>
+window.addEventListener('message', function(e){
+  var d = e.data;
+  if(!d || typeof d.synatvisHeight !== 'number') return;
+  var f = document.querySelector('.celliframe');
+  if(f && e.source === f.contentWindow){
+    f.style.height = (Math.max(300, d.synatvisHeight) + 2) + 'px';
+  }
+});
+</script>
+</div></body></html>

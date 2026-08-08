@@ -1,0 +1,57 @@
+version: 1
+stage: "Stage 0 -- ground-truth corpus for the construct-grammar recognizer"
+status: "frozen"
+frozen_date: "2026-08-07"
+note: "Frozen before any part collection began (Stage 0, Step 1). Do not edit criteria to fit a part already collected -- amend via a new version instead, with the reason logged."
+
+inclusion:
+  - id: IC-1
+    name: assembly_standard_compatible
+    statement: "The part is flanked by defined Type IIS recognition sites (BsaI, BsmBI, and/or BpiI) consistent with the MoClo/Golden Gate standard, and/or its fusion overhangs match one of the twelve positions defined in the Phytobricks common syntax."
+    rationale: "This is the operational definition of 'the template'. A part lacking these signatures is not an instance of the grammar the recognizer is meant to detect; including it teaches the model the wrong boundary."
+    citation: "Patron et al. 2015, New Phytologist (common syntax); Weber et al. 2011, PLoS ONE (MoClo)"
+  - id: IC-2
+    name: functionally_validated
+    statement: "The part's function has been experimentally demonstrated in (a) Chlamydomonas reinhardtii nuclear or chloroplast expression, or (b) another organism using a Phytobrick-common-syntax-compliant system."
+    rationale: "Separates 'this sequence exists' from 'this sequence is known to work'. (b)-only parts are usable for Tier A (syntax/junction training) but must never enter Tier B (Cr part-identity training)."
+    citation: "Crozet et al. 2018, ACS Synth Biol; Lauersen et al. 2015, Appl Microbiol Biotechnol"
+  - id: IC-3
+    name: primary_source_deposited
+    statement: "The part's exact sequence is retrievable from a primary, addressable repository (Addgene plasmid + GenBank map, or an NCBI GenBank/RefSeq accession) -- not solely a coordinate table or schematic figure in the main text."
+    rationale: "Supplementary-table transcription errors are a documented failure mode in this exact literature (pLannotate's authors flag incomplete/historically-reused plasmid annotations for this reason). A part whose only evidence is a table entry cannot be independently re-verified later."
+    citation: "McGuffie & Barrick 2021, NAR (pLannotate)"
+  - id: IC-4
+    name: categorizable
+    statement: "The part can be assigned an unambiguous Sequence Ontology (SO) term from the agreed vocabulary (see so_vocabulary.yaml)."
+    rationale: "Prevents a 'miscellaneous' catch-all label that would be useless as a training class. An uncategorizable candidate signals either a genuinely novel part type (requiring a deliberate vocabulary extension, not an ad hoc one during data entry) or a poorly characterized part not yet fit for ground truth."
+    citation: "Eilbeck et al. 2005, Genome Biology (Sequence Ontology); McLaughlin et al. 2020 (SBOL3, which requires SO-backed part-role terms)"
+  - id: IC-5
+    name: independently_citable
+    statement: "The part has a stable citation (DOI, PMID, or Addgene ID) that a third party could use to verify the claim without contacting the original authors."
+    rationale: "Matches the project's existing rule: never assert a fact the user cannot independently check. A construct-grammar identity claim carries a higher evidentiary bar than a statistical claim, because it is presented as fact, not probability."
+    citation: "internal policy, consistent with CLAUDE.md §2"
+
+exclusion:
+  - id: EX-1
+    name: preprint_without_deposit
+    statement: "Parts described only in a preprint with no deposited sequence are excluded (not rejected permanently -- tag as 'pending' for re-check once/if deposited)."
+    rationale: "Avoids ground truth built on a claim that has not yet passed any independent scrutiny and cannot yet be independently retrieved."
+  - id: EX-2
+    name: conflicting_sequence
+    statement: "If a part's supplementary-described sequence conflicts with its deposited Addgene/GenBank sequence, exclude until manually reconciled. Never guess which one is correct."
+    rationale: "A silent 'pick one' resolution is itself a fabrication risk -- the discrepancy must be surfaced, not hidden."
+  - id: EX-3
+    name: non_type_iis_standard
+    statement: "Parts from non-Phytobrick-compatible assembly standards (e.g. classic Gateway-only vectors with no Type IIS interface) are out of scope for this corpus version."
+    rationale: "Out of scope, not silently dropped -- these belong to a separate future corpus (the recombinant N-/C-terminal tag grammar: pNX/pONE-style cassettes), tracked separately so the gap is visible rather than invisible."
+    citation: "Luo et al. 2025 (pNX); Somogyi et al. 2019 (versatile modular vector set)"
+  - id: EX-4
+    name: no_functional_evidence
+    statement: "A part with a deposited sequence but no functional validation data may enter a separate 'candidate' tier, never the primary ground-truth tier."
+    rationale: "Prevents contaminating training data with parts that might not even work as claimed -- sequence deposition alone is not evidence of function."
+
+candidate_record_schema:
+  required_fields: [part_id, so_term, assembly_sites, validated_hosts, accession_type, accession, citation, functional_evidence]
+  accession_type_allowed_for_IC3: [addgene_plasmid, genbank_accession, chlamycollection_catalog_entry, paper_supplementary_sequence_file]
+  accession_type_not_allowed_for_IC3: [supplementary_table_only, figure_only, described_only]
+  note_on_accession_types: "Discovered during Step 2 (2026-08-07): the real Crozet et al. 2018 Cr MoClo toolkit is distributed via the Chlamydomonas Resource Center (chlamycollection.org, part IDs pCM0-xxx/pCM1-xxx), not Addgene. 'chlamycollection_catalog_entry' and 'paper_supplementary_sequence_file' were added as legitimate IC-3 types -- but only once real sequence text is in hand: a candidate with catalog metadata but no retrieved sequence still fails IC-3 under evaluate_candidate()."

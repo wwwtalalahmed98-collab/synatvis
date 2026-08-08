@@ -1,0 +1,80 @@
+# Chlamydomonas reinhardtii NUCLEAR codon usage - fraction within each
+# amino-acid family (columns: codon<TAB>aa<TAB>fraction). DNA alphabet (T, not U).
+#
+# PROVENANCE (AUTHENTIC DATA):
+#   Source : Kazusa Codon Usage Database, Chlamydomonas reinhardtii,
+#            taxid 3055, GenBank plant division [gbpln] (nuclear-encoded).
+#   Basis  : 846 CDS, 420455 codons. Coding GC = 66.3%
+#            (confirms the GC-rich NUCLEAR set; chloroplast would be ~35%).
+#   URL    : https://www.kazusa.or.jp/codon/cgi-bin/showcodon.cgi?species=3055
+#   Fetched: 2026 (this build). Fractions computed from raw codon counts.
+#
+# UPGRADE PATH: for a larger, RefSeq-based, strictly nuclear count, regenerate
+# from CoCoPUTs (Cr) or from Phytozome C. reinhardtii v6.1 CDS. Same format.
+# The loader derives adaptiveness w_i = fraction_i / max(fraction in aa).
+#
+codon	aa	fraction
+GCA	A	0.0841
+GCC	A	0.4320
+GCG	A	0.3516
+GCT	A	0.1323
+TGC	C	0.9015
+TGT	C	0.0985
+GAC	D	0.8620
+GAT	D	0.1380
+GAA	E	0.0495
+GAG	E	0.9505
+TTC	F	0.8439
+TTT	F	0.1561
+GGA	G	0.0575
+GGC	G	0.7196
+GGG	G	0.1128
+GGT	G	0.1100
+CAC	H	0.8875
+CAT	H	0.1125
+ATA	I	0.0295
+ATC	I	0.7465
+ATT	I	0.2240
+AAA	K	0.0534
+AAG	K	0.9466
+CTA	L	0.0287
+CTC	L	0.1451
+CTG	L	0.7259
+CTT	L	0.0495
+TTA	L	0.0065
+TTG	L	0.0443
+ATG	M	1.0000
+AAC	N	0.9119
+AAT	N	0.0881
+CCA	P	0.0798
+CCC	P	0.4659
+CCG	P	0.3261
+CCT	P	0.1283
+CAA	Q	0.1043
+CAG	Q	0.8957
+AGA	R	0.0121
+AGG	R	0.0484
+CGA	R	0.0354
+CGC	R	0.6183
+CGG	R	0.1985
+CGT	R	0.0873
+AGC	S	0.3479
+AGT	S	0.0395
+TCA	S	0.0489
+TCC	S	0.2460
+TCG	S	0.2454
+TCT	S	0.0723
+ACA	T	0.0771
+ACC	T	0.5246
+ACG	T	0.3007
+ACT	T	0.0977
+GTA	V	0.0295
+GTC	V	0.2235
+GTG	V	0.6728
+GTT	V	0.0742
+TGG	W	1.0000
+TAC	Y	0.8983
+TAT	Y	0.1017
+TAA	*	0.5182
+TAG	*	0.2150
+TGA	*	0.2667

@@ -1,0 +1,20 @@
+# Normalise line endings so the repo is clean across Windows/macOS/Linux.
+* text=auto eol=lf
+
+# Platform launchers must keep their native endings to run.
+*.bat   text eol=crlf
+*.command text eol=lf
+*.sh    text eol=lf
+
+# Data files are text (LF) so diffs stay sane.
+*.fasta text eol=lf
+*.tsv   text eol=lf
+*.yaml  text eol=lf
+*.json  text eol=lf
+
+# Binary assets — never touch these.
+*.png   binary
+*.webp  binary
+*.pdf   binary
+*.docx  binary
+*.zip   binary
