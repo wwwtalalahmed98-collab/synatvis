@@ -3,14 +3,14 @@
 SynAT.Vis is co-founded by:
 
 ## Talal Ahmed
-- **Role:** [fill in — e.g. "Lead developer — tool architecture, diagnostic modules, validation harness"]
-- **Contribution:** [fill in the specific parts you actually built or drove]
-- **Contact:** [optional]
+- **Role:** Co-founder — software architecture & development
+- **Contribution:** Designed and built the tool's architecture and implementation.
+- **Contact:** www.talalahmed98@gmail.com
 
 ## Ahmed Hussain Shah
-- **Role:** [fill in — e.g. "Co-founder — domain/biology lead"]
-- **Contribution:** [fill in the specific parts he actually built or drove]
-- **Contact:** [optional]
+- **Role:** Co-founder — scientific concept & biology
+- **Contribution:** Originated the project concept and provided the underlying biological/domain expertise.
+- **Contact:** [add Ahmed's email/GitHub here]
 
 ---
 
