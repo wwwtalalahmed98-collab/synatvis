@@ -10,7 +10,7 @@ SynAT.Vis is co-founded by:
 ## Ahmed Hussain Shah
 - **Role:** Co-founder — scientific concept & biology
 - **Contribution:** Originated the project concept and provided the underlying biological/domain expertise.
-- **Contact:** [add Ahmed's email/GitHub here]
+- **Contact:** itsmeahmed22@gmail.com
 
 ---
 
