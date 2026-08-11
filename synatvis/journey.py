@@ -158,6 +158,21 @@ def build_journey(transcript, profile: Dict, scan_result, expression,
            ref="Kyte-Doolittle", detail="Positive = hydrophobic (aggregation/solubility watch)."),
     ]})
 
+    # 8b — multiprotein complex membership (name-based, cryo-ET-anchored context)
+    from .complexome import identify_complexes
+    complex_matches = identify_complexes(transcript.name)
+    if complex_matches:
+        cp.append({"key": "complex", "title": "Multiprotein complex membership",
+                   "symbol": "complex", "organelle": "fold", "level": "posttranslation", "params": [
+            _p(m.complex_name, m.function, status="info",
+               ref=m.structural_citation,
+               detail=f"Gene-name match ({m.matched_pattern}); identity basis: "
+                      f"{m.identity_citation}. This complex was directly imaged intact "
+                      f"in Cr cells by cryo-electron tomography — this specific molecule "
+                      f"was not itself imaged, only its complex family.")
+            for m in complex_matches
+        ]})
+
     # 8/9 — PTM routing by fate
     if "secreted" in loc or "membrane" in loc:
         cp.append({"key": "er", "title": "ER entry (signal peptide)", "symbol": "er",

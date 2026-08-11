@@ -26,6 +26,8 @@ from .pangolin import PangolinPlugin
 from .codonfm import CodonFMPlugin
 from .openfold3 import OpenFold3Plugin
 from .evo2 import Evo2Plugin
+# Molecular dynamics -- opt-in slot for a real, separately-installed MD engine
+from .moleculardynamics import MolecularDynamicsPlugin
 
 REGISTRY: List[Plugin] = [
     LinearDesignPlugin(),
@@ -45,6 +47,8 @@ REGISTRY: List[Plugin] = [
     CodonFMPlugin(),
     OpenFold3Plugin(),
     Evo2Plugin(),
+    # Molecular dynamics
+    MolecularDynamicsPlugin(),
 ]
 
 

@@ -286,7 +286,8 @@ _TEMPLATE = r"""<div class="cellwrap">
      bead:'<circle cx="15" cy="15" r="9" fill="'+a+'" opacity="0.3" stroke="'+a+'" stroke-width="1.6"/><path d="M9 15h12M15 9v12" stroke="'+s+'" stroke-width="1.2"/>',
      scissors:'<circle cx="9" cy="9" r="3.4" fill="none" stroke="'+a+'" stroke-width="1.8"/><circle cx="9" cy="21" r="3.4" fill="none" stroke="'+a+'" stroke-width="1.8"/><path d="M11.5 10.5 L25 20 M11.5 19.5 L25 10" stroke="'+s+'" stroke-width="1.8"/>',
      vial:'<path d="M12 4 h6 v7 l4 12 a3 3 0 0 1 -3 4 h-8 a3 3 0 0 1 -3 -4 l4 -12 Z" fill="none" stroke="'+s+'" stroke-width="1.6"/><path d="M11 18 h8 l2 5 a3 3 0 0 1 -3 4 h-6 a3 3 0 0 1 -3 -4 Z" fill="'+a+'" opacity="0.75"/>',
-     bench:'<rect x="5" y="18" width="20" height="3" fill="'+s+'"/><rect x="8" y="8" width="4" height="10" fill="'+a+'"/><rect x="18" y="6" width="4" height="12" fill="'+a+'"/>'
+     bench:'<rect x="5" y="18" width="20" height="3" fill="'+s+'"/><rect x="8" y="8" width="4" height="10" fill="'+a+'"/><rect x="18" y="6" width="4" height="12" fill="'+a+'"/>',
+     complex:'<circle cx="11" cy="12" r="6" fill="'+a+'" opacity="0.75"/><circle cx="20" cy="11" r="5.4" fill="'+s+'" opacity="0.75"/><circle cx="15" cy="20" r="5.6" fill="'+a+'" opacity="0.55"/>'
     };
     return (G[k]||G.protein);
   }

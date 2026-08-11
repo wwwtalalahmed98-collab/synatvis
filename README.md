@@ -266,7 +266,59 @@ no-fabrication discipline as the rest of the tool:
   5,000-gene native corpus, frozen held-out eval set, licensing/MTA audit) are
   planned but not yet executed.
 
-## Output & Tier-B plugins
+## Multiprotein complex membership (name-based, cryo-ET-anchored)
+
+Most proteins don't work alone — they're part of a physical "team" (a complex).
+`synatvis/complexome.py` cross-references a transcript's declared gene name/symbol
+(from a FASTA header) against a curated list of well-established gene-name patterns
+for known complex subunits (`data/complexes.yaml`): Rubisco (`rbcL`/`RBCS`),
+Photosystem II (`psbA–D`), Photosystem I (`psaA`/`psaB`), ATP synthase
+(`atpA/B/E/F/H/I`, `ATPC/D/G`), the cytosolic ribosome (`RPL#`/`RPS#`), and
+microtubules (`TUA#`/`TUB#`). A match adds a "Multiprotein complex membership"
+checkpoint citing both *why* the gene is assigned that identity (classic gene
+nomenclature) and the *structural* evidence that the complex physically exists
+in this organism — a 2025 large-scale cryo-electron tomography community dataset
+that directly imaged ~25 real macromolecular complexes inside intact
+*Chlamydomonas* cells (Chromatin-Structure-Rhythms-Lab, EMPIAR-11830). This is a
+**name-based identity + context hint, not a structural measurement of the
+specific scanned molecule** — the cryo-ET study confirms the complex *family*
+was imaged, not this particular sequence. Deliberately conservative: only
+patterns with unambiguous, well-established nomenclature are included (v1, 6
+complexes); expanding to more (nucleosome, clathrin, proteasome, mitoribosome)
+needs separately verified Cr-specific gene symbols first, not a guess. Two of
+the six patterns (ribosome `RPL#`/`RPS#`, microtubule `TUA#`/`TUB#`) are
+marked `confidence: UNVERIFIED for Chlamydomonas specifically` in the data
+file — the naming convention is standard across eukaryotes generally, but a
+real matching Cr NCBI record was not found when checked (2026-08-08); treat
+matches on those two as lower confidence until one is found.
+
+**Confirmed at scale** (`synatvis validate complexome`): the matcher was run
+against the real 5,000-gene native Cr corpus (accession-style headers, not
+gene symbols) and produced **0 false positives**, and against 13 real named
+genes fetched directly from the Chlamydomonas chloroplast genome (NCBI RefSeq
+NC_005353.1 — `data/named_complex_genes.fasta`), correctly matching **13/13**.
+What "at scale" means here, honestly: most of the 5,000-gene corpus has no
+classic gene symbol at all (NCBI's own Cr nuclear annotation mostly assigns
+systematic locus IDs like `CHLRE_17g713450v5`, confirmed by direct lookup, not
+assumed) — so this is a specificity check (proving no spurious matches), not
+5,000 real complex identifications. There is no "model" being trained here;
+this is a deterministic name-pattern lookup, not a statistical/ML component.
+
+## Molecular dynamics — opt-in slot, never simulated internally
+
+Molecular dynamics (MD) predicts how a protein's atoms move over time and is a
+fundamentally different computation from everything else here: it needs a full
+3D starting structure, a force field, and heavy compute (real runs take hours
+to weeks per system on GPUs/clusters). No MD run is ever "perfect" — every one
+is a real, known approximation, true for every lab, not a gap specific to this
+tool. SynAT.Vis does not run MD itself. `plugins/moleculardynamics.py` follows
+the same honest external-command contract as every other Tier-B plugin: set
+`MDSIM_CMD` to *your own* installed MD engine's wrapper (GROMACS/OpenMM/NAMD/
+AMBER), which reads a protein FASTA on stdin and prints JSON
+(`rmsd_nm`, `radius_of_gyration_nm`, `sim_time_ns`, `force_field`). Nothing
+runs and no numbers appear unless a real command is configured.
+
+## Construct-grammar recognizer (in progress — Stage 0)
 
 * **HTML report** (`scan --html`) — a polished, self-contained, theme-aware page:
   a colour-coded verdict, plain-language findings, suggested fixes, and cited
@@ -285,6 +337,8 @@ no-fabrication discipline as the rest of the tool:
   * *NVIDIA BioNeMo foundation-model seams* (GPU / NIM microservices): **CodonFM**
     (codon foundation model + SAE interpretability), **OpenFold3** (folding pLDDT/pTM),
     **Evo 2** (genomic likelihood, variant effect, generative redesign).
+  * *Molecular dynamics* (opt-in slot, never simulated internally): wraps *your own*
+    installed MD engine (GROMACS/OpenMM/NAMD/AMBER) — see "Molecular dynamics" above.
   * Each external-model adapter runs the user's *own* installed inference command
     (gated on an env var; reads FASTA on stdin, prints JSON) — so it runs a real
     model and never fabricates a score. See **`SynAT.Vis_AI_Integration_Roadmap.pdf`**

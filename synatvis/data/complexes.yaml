@@ -1,0 +1,36 @@
+version: 1
+note: "Deliberately conservative starting set (v1). Only complexes where the gene-name convention is well-established, unambiguous plant/algal nomenclature are included. Cross-referenced against the real macromolecules directly visualised by cryo-electron tomography in intact Chlamydomonas reinhardtii cells (Chromatin-Structure-Rhythms-Lab community cryo-ET dataset, EMPIAR-11830, 2025) -- that dataset proves these complexes physically exist and were directly imaged in situ, not just inferred from gene lists. More complexes (nucleosome, clathrin, proteasome, mitoribosome, respirasome) can be added once their exact Chlamydomonas-specific gene symbols are separately verified -- do not guess them in."
+structural_citation_default: "Chromatin-Structure-Rhythms-Lab cryo-ET community dataset 2025 (EMPIAR-11830); Mol Cell 2025"
+complexes:
+  - name: "Rubisco"
+    function: "captures CO2 in photosynthesis (first step of the Calvin cycle)"
+    gene_patterns: ["^rbcL", "^RBCS"]
+    identity_citation: "classic chloroplast (rbcL) / nuclear (RBCS) Rubisco gene nomenclature"
+    structural_citation: "directly visualised by cryo-ET in situ, Chromatin-Structure-Rhythms-Lab 2025"
+  - name: "Photosystem II"
+    function: "captures light energy and splits water (the oxygen-evolving complex)"
+    gene_patterns: ["^psbA", "^psbB", "^psbC", "^psbD"]
+    identity_citation: "classic chloroplast psb gene nomenclature"
+    structural_citation: "directly visualised by cryo-ET in situ, Chromatin-Structure-Rhythms-Lab 2025"
+  - name: "Photosystem I"
+    function: "second light-capturing photosystem; generates reducing power (NADPH)"
+    gene_patterns: ["^psaA", "^psaB"]
+    identity_citation: "classic chloroplast psa gene nomenclature"
+    structural_citation: "cytochrome c6:PSI cryo-EM structure, Nature Communications 2026; whole-cell context from Chromatin-Structure-Rhythms-Lab 2025"
+  - name: "ATP synthase (CF1-CF0)"
+    function: "makes ATP using the proton gradient built by photosynthesis"
+    gene_patterns: ["^atpA", "^atpB", "^atpE", "^atpF", "^atpH", "^atpI", "^ATPC", "^ATPD", "^ATPG"]
+    identity_citation: "classic chloroplast (atp) / nuclear (ATPC/D/G) ATP synthase gene nomenclature"
+    structural_citation: "directly visualised by cryo-ET in situ, Chromatin-Structure-Rhythms-Lab 2025"
+  - name: "Cytosolic ribosome (80S)"
+    function: "builds proteins by translating mRNA"
+    gene_patterns: ["^RPL[0-9]", "^RPS[0-9]"]
+    identity_citation: "standard eukaryotic ribosomal-protein gene nomenclature (RPL/RPS families)"
+    structural_citation: "directly visualised by cryo-ET in situ, Chromatin-Structure-Rhythms-Lab 2025"
+    confidence: "UNVERIFIED for Chlamydomonas specifically (2026-08-08) -- RPL/RPS is a real, standard convention across many eukaryotes, but a direct NCBI search did not turn up a confirmed Cr record using this exact short form. Treat matches on this pattern as lower confidence until a real Cr RPL/RPS accession is found."
+  - name: "Microtubule"
+    function: "structural filament; builds flagella and the cytoskeleton"
+    gene_patterns: ["^TUA[0-9]", "^TUB[0-9]"]
+    identity_citation: "standard alpha/beta-tubulin gene nomenclature"
+    structural_citation: "directly visualised by cryo-ET in situ, Chromatin-Structure-Rhythms-Lab 2025"
+    confidence: "UNVERIFIED for Chlamydomonas specifically (2026-08-08) -- a direct NCBI search found only a single low-quality EST record ('similar to beta tubulin', not a confirmed /gene= match) and no alpha-tubulin hit at all. Treat matches on this pattern as lower confidence until a real Cr TUA/TUB accession is found."

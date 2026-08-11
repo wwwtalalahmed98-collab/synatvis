@@ -453,6 +453,64 @@ def test_cell_view_renders_from_journey():
     assert "PURIFICATION BENCH" in html and "checkpoints" in html
 
 
+def test_complexome_matches_known_gene_names():
+    from synatvis.complexome import identify_complexes
+    assert [m.complex_name for m in identify_complexes("rbcL")] == ["Rubisco"]
+    assert [m.complex_name for m in identify_complexes("RBCS2")] == ["Rubisco"]
+    assert [m.complex_name for m in identify_complexes("psbA")] == ["Photosystem II"]
+    assert [m.complex_name for m in identify_complexes("RPL3")] == ["Cytosolic ribosome (80S)"]
+    assert identify_complexes("some_unrelated_gene_123") == []
+    assert identify_complexes("") == []
+
+
+def test_complexome_checkpoint_appears_only_on_a_real_match():
+    from synatvis.scanner import scan as _scan
+    from synatvis.expression import predict_expression
+    from synatvis.journey import build_journey
+    cds = "ATG" + "GCCGGCGAGGCC" * 12 + "TAA"
+    tx_match = Transcript(name="rbcL", cds=cds)
+    tx_nomatch = Transcript(name="unrelated_transcript", cds=cds)
+    res_m = _scan(tx_match, profile="cr_nuclear")
+    expr_m = predict_expression(tx_match, res_m.profile, scan_result=res_m)
+    J_m = build_journey(tx_match, res_m.profile, res_m, expr_m)
+    keys_m = [c["key"] for c in J_m["checkpoints"]]
+    assert "complex" in keys_m
+    complex_cp = next(c for c in J_m["checkpoints"] if c["key"] == "complex")
+    assert complex_cp["params"][0]["label"] == "Rubisco"
+
+    res_n = _scan(tx_nomatch, profile="cr_nuclear")
+    expr_n = predict_expression(tx_nomatch, res_n.profile, scan_result=res_n)
+    J_n = build_journey(tx_nomatch, res_n.profile, res_n, expr_n)
+    keys_n = [c["key"] for c in J_n["checkpoints"]]
+    assert "complex" not in keys_n
+
+
+def test_moleculardynamics_plugin_runs_users_own_command_and_never_fabricates(tmp_path, monkeypatch):
+    import sys as _sys
+    from synatvis.plugins.moleculardynamics import MolecularDynamicsPlugin
+    script = tmp_path / "fake_md.py"
+    script.write_text("import sys,json; sys.stdin.read();"
+                      "print(json.dumps({'rmsd_nm':0.21,'radius_of_gyration_nm':1.4,"
+                      "'sim_time_ns':50,'force_field':'AMBER99SB-ILDN'}))")
+    monkeypatch.setenv("MDSIM_CMD", f'"{_sys.executable}" "{script}"')
+    p = MolecularDynamicsPlugin()
+    assert p.available() is True
+    res = p.analyze(Transcript(cds="ATGGCCGGCGCCTAA"))
+    assert any(r.label == "MD backbone RMSD" and r.value == 0.21 and r.validated is False
+              for r in res)
+    monkeypatch.delenv("MDSIM_CMD")
+    assert p.available() is False  # no MD engine configured -> plugin is simply absent, nothing faked
+
+
+def test_complexome_scan_real_corpus_specificity_and_true_positives():
+    from synatvis.validation.complexome_scan import run
+    r = run()
+    assert r["n_native"] == 5000
+    assert r["false_positives"] == 0
+    assert r["n_named"] == 13
+    assert r["true_positives"] == 13
+
+
 def test_construct_grammar_criteria_yaml_parses_and_matches_ids():
     data = load_criteria()
     ic_ids = {c["id"] for c in data["inclusion"]}
