@@ -260,11 +260,28 @@ no-fabrication discipline as the rest of the tool:
   `INCLUSION_CRITERIA.md` for why each gate exists and what tool-level failure
   mode it prevents (e.g. IC-3 blocks the same class of silent transcription
   errors pLannotate documents in secondary-source plasmid maps).
-* Steps 2–11 (primary-source retrieval, SO vocabulary adoption, provenance
-  ledger, cross-toolkit deduplication, domestication QC, two-tier syntax/identity
-  split, homology-aware generalization split, hard-negative mining from the
-  5,000-gene native corpus, frozen held-out eval set, licensing/MTA audit) are
-  planned but not yet executed.
+* **Step 2 — primary-source sequence retrieval, in progress, partly blocked.**
+  `synatvis/data/construct_grammar/step2_catalog_ledger.yaml` logs 5 real,
+  independently-verified catalog entries from the Chlamydomonas Resource
+  Center (chlamycollection.org — the real distributor, correcting an earlier
+  assumption that this was on Addgene). Actual DNA sequence text is not yet in
+  hand: the founding toolkit paper (Crozet et al. 2018) is paywalled with no
+  free copy; outreach to the real corresponding authors is underway (see the
+  ledger's `outreach` section for the confirmed contacts and status).
+* **Step 3 — Sequence Ontology vocabulary, done.**
+  `synatvis/data/construct_grammar/so_vocabulary.yaml` adopts 13 real SO terms
+  (promoter, five_prime_UTR, CDS, three_prime_UTR, terminator, intron,
+  signal_peptide, selection_marker, engineered_tag, engineered_region, gene,
+  engineered_gene, operator), each independently verified against the real
+  Sequence Ontology via the EBI Ontology Lookup Service — not guessed. IC-4 in
+  `evaluate_candidate()` now checks actual vocabulary membership, so a
+  plausible-looking but non-adopted `SO:XXXXXXX` string correctly fails rather
+  than passing on the strength of just looking like an ID.
+* Steps 4–11 (provenance ledger schema, cross-toolkit deduplication,
+  domestication QC, two-tier syntax/identity split, homology-aware
+  generalization split, hard-negative mining from the 5,000-gene native
+  corpus, frozen held-out eval set, licensing/MTA audit) are planned but not
+  yet executed.
 
 ## Multiprotein complex membership (name-based, cryo-ET-anchored)
 

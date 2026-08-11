@@ -21,6 +21,7 @@ from typing import Any, Dict, List, Optional, Tuple
 from .profiles import PACKAGE_DIR, load_yaml
 
 CRITERIA_PATH = os.path.join(PACKAGE_DIR, "data", "construct_grammar", "inclusion_criteria.yaml")
+SO_VOCAB_PATH = os.path.join(PACKAGE_DIR, "data", "construct_grammar", "so_vocabulary.yaml")
 
 _ACCESSION_TYPES_OK = (
     "addgene_plasmid", "genbank_accession",
@@ -34,6 +35,23 @@ def load_criteria(path: str = CRITERIA_PATH) -> Dict[str, Any]:
     with open(path, "r", encoding="utf-8") as fh:
         data = load_yaml(fh.read())
     return data or {}
+
+
+def load_so_vocabulary(path: str = SO_VOCAB_PATH) -> Dict[str, Any]:
+    """Load the adopted Sequence Ontology vocabulary (Stage 0, Step 3).
+
+    Every term in this file was independently verified against the real
+    Sequence Ontology (via the EBI Ontology Lookup Service), not guessed --
+    see data/construct_grammar/so_vocabulary.yaml for the provenance of each.
+    """
+    with open(path, "r", encoding="utf-8") as fh:
+        data = load_yaml(fh.read())
+    return data or {}
+
+
+def valid_so_ids(path: str = SO_VOCAB_PATH) -> set:
+    """The set of SO IDs (e.g. 'SO:0000167') a CandidatePart.so_term may use."""
+    return {t["id"] for t in load_so_vocabulary(path).get("terms", [])}
 
 
 class Verdict(str, Enum):
@@ -121,8 +139,18 @@ def _check_ic3(p: CandidatePart) -> CriterionCheck:
 
 
 def _check_ic4(p: CandidatePart) -> CriterionCheck:
-    ok = bool(p.so_term)
-    reason = f"SO term assigned ({p.so_term})" if ok else "no Sequence Ontology term assignable"
+    """Passes only for an SO term from the adopted, independently-verified
+    vocabulary (so_vocabulary.yaml) -- any other string, even a real-looking
+    'SO:XXXXXXX' ID that just isn't in the vocabulary yet, correctly fails.
+    """
+    valid = valid_so_ids()
+    ok = bool(p.so_term) and p.so_term in valid
+    if ok:
+        reason = f"SO term assigned ({p.so_term}, in the adopted vocabulary)"
+    elif p.so_term:
+        reason = f"'{p.so_term}' is not in the adopted SO vocabulary (so_vocabulary.yaml)"
+    else:
+        reason = "no Sequence Ontology term assigned"
     return CriterionCheck("IC-4", ok, reason)
 
 

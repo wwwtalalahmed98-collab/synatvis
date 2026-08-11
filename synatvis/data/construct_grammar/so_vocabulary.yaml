@@ -1,0 +1,60 @@
+version: 1
+stage: "Stage 0, Step 3 -- adopt the Sequence Ontology controlled vocabulary"
+source: "EBI Ontology Lookup Service (OLS4), ontology=so (Sequence Ontology, Eilbeck et al. 2005)"
+note: "Every term below was independently looked up and confirmed real at https://www.ebi.ac.uk/ols4/api/ (2026-08-12) -- none guessed from memory. This is a deliberately conservative starting set covering only the part categories this project's own code already models structurally (Transcript.cds/utr5/utr3 in seqio.py, intron handling in journey.py, signal_peptide/tags in ptm.py + purification.py). Extend only after verifying a new term the same way -- see verify.py in this same folder."
+terms:
+  - id: "SO:0000167"
+    label: promoter
+    used_for: "the promoter part of a construct"
+    verified_via: "EBI OLS4 term lookup, 2026-08-12"
+  - id: "SO:0000204"
+    label: five_prime_UTR
+    used_for: "the 5' UTR part (before the start codon)"
+    verified_via: "EBI OLS4 exact search, 2026-08-12"
+  - id: "SO:0000316"
+    label: CDS
+    used_for: "the coding sequence part -- the gene itself"
+    verified_via: "EBI OLS4 exact search, 2026-08-12"
+  - id: "SO:0000205"
+    label: three_prime_UTR
+    used_for: "the 3' UTR part (after the stop codon)"
+    verified_via: "EBI OLS4 exact search, 2026-08-12"
+  - id: "SO:0000141"
+    label: terminator
+    used_for: "the transcriptional terminator part"
+    verified_via: "EBI OLS4 exact search, 2026-08-12"
+  - id: "SO:0000188"
+    label: intron
+    used_for: "an intron part (an asset in Cr, not a hazard -- see CLAUDE.md)"
+    verified_via: "EBI OLS4 exact search, 2026-08-12"
+  - id: "SO:0000418"
+    label: signal_peptide
+    used_for: "an N-terminal signal-peptide part (secretory routing)"
+    verified_via: "EBI OLS4 exact search, 2026-08-12"
+  - id: "SO:0002232"
+    label: selection_marker
+    used_for: "an antibiotic-resistance / selection marker part"
+    verified_via: "EBI OLS4 exact search, 2026-08-12"
+  - id: "SO:0000807"
+    label: engineered_tag
+    used_for: "a purification/affinity tag (His-tag, FLAG, etc.) -- SO has no more specific term for individual tag types; this is the closest real match, flagged broad on purpose"
+    verified_via: "EBI OLS4 exact search, 2026-08-12"
+  - id: "SO:0000804"
+    label: engineered_region
+    used_for: "a general fallback for a synthetic/engineered part that does not fit a more specific category above -- use the more specific term whenever one applies"
+    verified_via: "EBI OLS4 exact search, 2026-08-12"
+  - id: "SO:0000704"
+    label: gene
+    used_for: "a whole gene, when a part is not being split into promoter/UTR/CDS/terminator sub-parts"
+    verified_via: "EBI OLS4 exact search, 2026-08-12"
+  - id: "SO:0000280"
+    label: engineered_gene
+    used_for: "a whole synthetic/engineered gene construct, as a single unit"
+    verified_via: "EBI OLS4 exact search, 2026-08-12"
+  - id: "SO:0000057"
+    label: operator
+    used_for: "an operator part (a regulatory binding site within/near a promoter)"
+    verified_via: "EBI OLS4 exact search, 2026-08-12"
+not_found:
+  - query: "epitope_tag / affinity_tag / his_tag / FLAG_tag / polyhistidine / reporter_gene"
+    result: "no matching SO term exists for these more specific concepts as of 2026-08-12 -- engineered_tag (SO:0000807) is the closest real term and is used instead; do not invent a more specific ID that does not exist in the real ontology."

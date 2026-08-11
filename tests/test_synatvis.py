@@ -23,6 +23,7 @@ from synatvis.flags import Severity  # noqa: E402
 from synatvis import _yaml  # noqa: E402
 from synatvis.construct_grammar import (  # noqa: E402
     CandidatePart, Verdict, evaluate_candidate, load_criteria,
+    load_so_vocabulary, valid_so_ids,
 )
 
 
@@ -509,6 +510,39 @@ def test_complexome_scan_real_corpus_specificity_and_true_positives():
     assert r["false_positives"] == 0
     assert r["n_named"] == 13
     assert r["true_positives"] == 13
+
+
+def test_so_vocabulary_loads_and_contains_real_verified_terms():
+    vocab = load_so_vocabulary()
+    ids = valid_so_ids()
+    assert len(vocab["terms"]) >= 10
+    # spot-check a few terms independently verified against the real Sequence
+    # Ontology (EBI OLS) rather than guessed
+    for so_id, label in [("SO:0000167", "promoter"), ("SO:0000316", "CDS"),
+                         ("SO:0000141", "terminator"), ("SO:0000188", "intron")]:
+        assert so_id in ids
+        entry = next(t for t in vocab["terms"] if t["id"] == so_id)
+        assert entry["label"] == label
+
+
+def test_construct_grammar_unknown_so_term_fails_ic4_even_if_real_looking():
+    """A plausible-looking 'SO:XXXXXXX' string that just isn't in the adopted
+    vocabulary yet must fail IC-4 -- IC-4 checks vocabulary membership, not
+    merely that some string was supplied."""
+    part = CandidatePart(
+        part_id="mystery_part",
+        so_term="SO:9999999",  # not a real adopted term
+        assembly_sites=["BsaI"],
+        validated_hosts=["chlamydomonas_reinhardtii_nuclear"],
+        accession="Addgene_11111",
+        accession_type="addgene_plasmid",
+        sequence="ATGGCC" * 20,
+        citation="doi:10.1000/xyz",
+        functional_evidence="confirmed",
+    )
+    result = evaluate_candidate(part)
+    assert result.verdict is Verdict.EXCLUDE
+    assert "IC-4" in {c.id for c in result.failed()}
 
 
 def test_construct_grammar_criteria_yaml_parses_and_matches_ids():
