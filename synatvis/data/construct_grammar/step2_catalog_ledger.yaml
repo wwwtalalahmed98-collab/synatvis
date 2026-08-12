@@ -1,7 +1,27 @@
-version: 1
+version: 2
 stage: "Stage 0, Step 2 -- retrieve primary-source sequences"
-status: "in_progress -- metadata verified, DNA sequences not yet in hand"
-last_updated: "2026-08-07"
+status: "RESOLVED -- real sequences retrieved from the primary source (2026-08-12)"
+last_updated: "2026-08-12"
+
+resolution:
+  summary: "The complete Cr MoClo toolkit is published as a single downloadable GenBank archive by the Chlamydomonas Resource Center. 115 real plasmid records retrieved, parsed, and integrity-checked. Step 2 is no longer blocked."
+  how_it_was_resolved: "The toolkit's own authors were emailed and replied: 'You can download all sequence files directly from the Chlamydomonas Resource Center (CRC) catalog referenced in your email.' Acting on that, the catalog was re-checked and the archive was found."
+  correction_to_v1: "The v1 blocked_on claim below was WRONG and is kept verbatim for provenance rather than quietly deleted. The earlier pass checked only the per-part product pages (/product/pcm0-001/ etc.), which genuinely carry no download link -- verified again 2026-08-12, still none. The bulk archive is linked from the toolkit LANDING page (/products/plasmids/moclo-toolkit/) instead. The lesson: 'not on the page I checked' is not the same as 'does not exist', and the domain experts were right where our own search was not."
+  archive_url: "https://www.chlamycollection.org/content/uploads/2019/06/MoClo-Kit-Sequences.zip"
+  archive_sha256: "8689ef08e7611fe3ce87ec11f1921ef8a4d37da578c474048897ff1d27128ec4"
+  archive_bytes: 431086
+  retrieved: "2026-08-12"
+  records_parsed: 115
+  integrity_checks_passed:
+    - "all 115 GenBank records parsed; 0 failures"
+    - "every record's ORIGIN sequence length exactly matches its LOCUS header declaration (0 mismatches)"
+    - "115/115 records carry at least one Type IIS site (BsaI/BpiI/BsmBI) -- consistent with IC-1, which every MoClo part must satisfy"
+    - "length range 2,266-8,351 bp (median 2,761)"
+  important_nuance: "These records are whole PLASMIDS, not excised parts -- each part sits inside a shared backbone flanked by Type IIS sites (all records share an identical first ~60 nt of backbone). Cutting each part out from between its sites is Stage 1 (segmentation) work, NOT Step 2. Do not treat a whole-plasmid record as if it were a part sequence."
+  redistribution_decision: "The sequence files are NOT vendored into this repository. `fetch_moclo_corpus.py` in this folder downloads them from the primary source, verifies the recorded SHA-256, and writes a local git-ignored corpus -- so the corpus is fully reproducible without this project redistributing a third party's files. The CRC page states academic/non-profit vs commercial pricing for PHYSICAL plasmid stocks; no licence or MTA statement was found attached to the freely-posted sequence files themselves (checked 2026-08-12). Confirming that distinction is Step 11 (licensing/MTA audit) and is still open."
+  parts_still_missing:
+    - part_id: pCM0-120
+      reason: "Not in this archive. The archive was uploaded 2019-06; the BSR/blasticidin marker was published by de Carpentier et al. in 2020, so its absence is chronologically expected rather than a retrieval failure. Its sequence still needs a separate source."
 
 note: "Every part below was independently verified by fetching its live catalog page at chlamycollection.org (not summarized/guessed). pCM0-120 was additionally cross-checked against the open-access de Carpentier et al. 2020 paper (Frontiers Plant Sci, PMC7066984) and the two independent sources agree on position, acceptor plasmid, and citation. No DNA sequence text has been retrieved for any part yet -- see blocked_on below. Each entry's accession field is empty on purpose; do not fill it with a guess."
 
@@ -59,7 +79,7 @@ parts:
     sequence: ""
     verified_via: "cross-checked TWO independent sources: chlamycollection.org/product/pcm0-120/ AND the open-access full text of de Carpentier et al. 2020 (PMC7066984) -- both agree on position B3-B5, acceptor pICH41308, and the Crozet/de Carpentier joint citation"
 
-blocked_on: "Actual DNA sequence text for every part above. Crozet et al. 2018 (the primary paper) is paywalled at ACS Publications with no PMC deposit (confirmed via PubMed metadata: no 'pmc' field for PMID 30165733) and no downloadable sequence file found on the catalog pages themselves (checked raw HTML directly, not just a page summary). de Carpentier et al. 2020 is open access (PMC7066984) but its plain full text does not contain the complete domesticated BSR coding sequence -- only short 20-nt primer fragments were found by scanning for DNA-letter runs; the full construct sequence is likely in a supplementary table/figure image, which is not machine-readable through the tools used here."
+blocked_on_SUPERSEDED_v1: "[SUPERSEDED 2026-08-12 -- see resolution.correction_to_v1 above. Kept verbatim for provenance: this conclusion was wrong.] Actual DNA sequence text for every part above. Crozet et al. 2018 (the primary paper) is paywalled at ACS Publications with no PMC deposit (confirmed via PubMed metadata: no 'pmc' field for PMID 30165733) and no downloadable sequence file found on the catalog pages themselves (checked raw HTML directly, not just a page summary). de Carpentier et al. 2020 is open access (PMC7066984) but its plain full text does not contain the complete domesticated BSR coding sequence -- only short 20-nt primer fragments were found by scanning for DNA-letter runs; the full construct sequence is likely in a supplementary table/figure image, which is not machine-readable through the tools used here."
 
 next_options:
   - "Request the paywalled Crozet 2018 Supporting Information through institutional/journal access (fastest, if available)."
@@ -68,7 +88,8 @@ next_options:
   - "Contact the original scientists directly and ask for the deposited sequence files -- chosen by the user on 2026-08-07 as the first thing to try."
 
 outreach:
-  status: "email drafted and handed to user 2026-08-07; not yet sent (drafting/sending is the user's own action, not automated)"
+  status: "SENT and ANSWERED. The user sent the emails; a reply was received (relayed 2026-08-12): 'You can download all sequence files directly from the Chlamydomonas Resource Center (CRC) catalog referenced in your email. Good luck with your project.' This single reply resolved Step 2 -- see the resolution block at the top."
+  outcome: "Domain experts pointed to a resource our own catalog search had missed. Worth remembering as a method, not just a one-off: asking the people who built the thing was faster and more reliable than further scraping."
   contacts_confirmed_by_direct_page_fetch:
     - name: "Kyle J. Lauersen"
       email: "kyle.lauersen@kaust.edu.sa"

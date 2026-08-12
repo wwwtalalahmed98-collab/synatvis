@@ -512,6 +512,34 @@ def test_complexome_scan_real_corpus_specificity_and_true_positives():
     assert r["true_positives"] == 13
 
 
+def test_moclo_fetcher_parses_real_archive_if_present():
+    """Offline test: if the corpus has been fetched locally, sanity-check it.
+
+    Skips (rather than fails) when the git-ignored corpus is absent, so the suite
+    stays runnable on a clean checkout with no network.
+    """
+    import json as _json
+    import importlib.util as _ilu
+    from synatvis.profiles import PACKAGE_DIR
+    cg = os.path.join(PACKAGE_DIR, "data", "construct_grammar")
+    # the data dir is not a package, so load the fetcher by path
+    spec = _ilu.spec_from_file_location("fetch_moclo_corpus",
+                                        os.path.join(cg, "fetch_moclo_corpus.py"))
+    F = _ilu.module_from_spec(spec)
+    spec.loader.exec_module(F)
+    manifest = os.path.join(cg, "moclo_corpus", "manifest.json")
+    if not os.path.isfile(manifest):
+        return  # corpus not fetched on this machine; nothing to check
+    with open(manifest, encoding="utf-8") as fh:
+        data = _json.load(fh)
+    assert data["sha256"] == F.EXPECTED_SHA256
+    assert data["n_records"] == F.EXPECTED_RECORDS
+    recs = data["records"]
+    # every real MoClo part must carry a Type IIS site -- this is IC-1
+    assert all(r["type_iis_sites"] for r in recs)
+    assert all(r["length_bp"] > 0 for r in recs)
+
+
 def test_so_vocabulary_loads_and_contains_real_verified_terms():
     vocab = load_so_vocabulary()
     ids = valid_so_ids()

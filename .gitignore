@@ -33,3 +33,10 @@ Thumbs.db
 scratch/
 tmp/
 *.log
+
+# Third-party MoClo toolkit sequences fetched from the Chlamydomonas Resource
+# Center. Reproduce locally with:
+#   python synatvis/data/construct_grammar/fetch_moclo_corpus.py
+# Not vendored here: these are someone else's files, and the fetch script plus
+# its recorded SHA-256 make the corpus reproducible without redistributing them.
+synatvis/data/construct_grammar/moclo_corpus/

@@ -1,7 +1,7 @@
 version: 1
 stage: "Stage 0, Step 3 -- adopt the Sequence Ontology controlled vocabulary"
 source: "EBI Ontology Lookup Service (OLS4), ontology=so (Sequence Ontology, Eilbeck et al. 2005)"
-note: "Every term below was independently looked up and confirmed real at https://www.ebi.ac.uk/ols4/api/ (2026-08-12) -- none guessed from memory. This is a deliberately conservative starting set covering only the part categories this project's own code already models structurally (Transcript.cds/utr5/utr3 in seqio.py, intron handling in journey.py, signal_peptide/tags in ptm.py + purification.py). Extend only after verifying a new term the same way -- see verify.py in this same folder."
+note: "Every term below was independently looked up and confirmed real at https://www.ebi.ac.uk/ols4/api/ (2026-08-12) -- none guessed from memory. This is a deliberately conservative starting set covering only the part categories this project's own code already models structurally (Transcript.cds/utr5/utr3 in seqio.py, intron handling in journey.py, signal_peptide/tags in ptm.py + purification.py). Extend only after verifying a new term the same way, by looking it up at the EBI OLS4 API before adding it."
 terms:
   - id: "SO:0000167"
     label: promoter

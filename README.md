@@ -260,14 +260,23 @@ no-fabrication discipline as the rest of the tool:
   `INCLUSION_CRITERIA.md` for why each gate exists and what tool-level failure
   mode it prevents (e.g. IC-3 blocks the same class of silent transcription
   errors pLannotate documents in secondary-source plasmid maps).
-* **Step 2 — primary-source sequence retrieval, in progress, partly blocked.**
-  `synatvis/data/construct_grammar/step2_catalog_ledger.yaml` logs 5 real,
-  independently-verified catalog entries from the Chlamydomonas Resource
-  Center (chlamycollection.org — the real distributor, correcting an earlier
-  assumption that this was on Addgene). Actual DNA sequence text is not yet in
-  hand: the founding toolkit paper (Crozet et al. 2018) is paywalled with no
-  free copy; outreach to the real corresponding authors is underway (see the
-  ledger's `outreach` section for the confirmed contacts and status).
+* **Step 2 — primary-source sequence retrieval, RESOLVED.**
+  The complete Cr MoClo toolkit is published as a single downloadable GenBank
+  archive by the Chlamydomonas Resource Center. **115 real plasmid records**
+  retrieved and integrity-checked: every record's sequence length matches its
+  `LOCUS` header exactly, and **115/115 carry at least one Type IIS site**
+  (BsaI/BpiI/BsmBI) — consistent with IC-1, which every MoClo part must satisfy.
+  `fetch_moclo_corpus.py` downloads the archive, verifies its recorded SHA-256,
+  and writes a local git-ignored corpus, so the corpus is reproducible without
+  this repo redistributing a third party's files.
+  Two things worth recording honestly: (a) an earlier pass concluded no download
+  existed — that was **wrong**; it had only checked the per-part product pages,
+  which genuinely have no download link, while the archive is linked from the
+  toolkit *landing* page. The superseded claim is kept verbatim in the ledger
+  rather than quietly deleted. (b) These records are whole **plasmids**, not
+  excised parts — cutting each part out from between its Type IIS sites is
+  Stage 1 (segmentation), not Step 2. `pCM0-120` (BSR) is absent because the
+  2019 archive predates its 2020 publication.
 * **Step 3 — Sequence Ontology vocabulary, done.**
   `synatvis/data/construct_grammar/so_vocabulary.yaml` adopts 13 real SO terms
   (promoter, five_prime_UTR, CDS, three_prime_UTR, terminator, intron,
