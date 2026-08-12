@@ -240,6 +240,45 @@ diagnostic core still emits no score). It is *directionally validated*: it ranks
 Cr-codon-optimised rescue partners far above their native versions (GFP 0→77,
 luciferase 0→81) and native genes above foreign (median 79 vs 0; 99% vs 1% above 50).
 
+## Calibration against real measured expression (one anchor, one open defect)
+
+Every other validation leg checks *direction* against qualitative literature.
+`synatvis validate calibration` checks the expression index against **actual
+published numbers** (`synatvis/data/calibration_anchors.yaml`).
+
+First anchor: intron-mediated enhancement measured by NanoLuc activity across
+pools of >1,000 individual transformants per construct
+([Front. Plant Sci. 2025, PMC11925875](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11925875/),
+open access) — 0 introns = 1x, one intron = 6–9x, both introns = **>16x**
+protein (~60x transcript).
+
+**This immediately exposed a real defect.** Using the real bTUB2i1 intron excised
+from its real MoClo plasmid (pCM0-041, 180 bp):
+
+| introns | expression index | real measured |
+|---|---|---|
+| 0 | 66.8 | 1x (baseline) |
+| 1 | 69.6 | 6–9x |
+| 2 | **57.4** | **>16x** |
+
+The one-intron case moves the right way; the two-intron case moves the **wrong**
+way, against the largest effect in the anchor set. Mechanism: the index computes
+codon-adaptation metrics (RCA, tAI) across the whole submitted sequence, so intron
+sequence — which is spliced out before translation and is not coding — is counted
+in those statistics and dilutes them. The scanner's `splice` module *does*
+correctly detect these introns (`donor GTRAG / acceptor YAG`); the expression
+index simply never consumes that detection.
+
+The proposed fix (mask detected intron spans out of the coding-metric computation)
+is a correctness fix grounded in biology, introducing **no fitted constant** — but
+it would move published validation numbers, so it is documented and **deliberately
+not applied unilaterally**.
+
+Scope, stated plainly: this is **one** anchor set. It is enough to expose a real
+defect and nowhere near enough to call the index calibrated. The index remains
+*"directionally validated, with one measured anchor and one known open defect"* —
+not *"calibrated"*.
+
 ## Construct-grammar recognizer (in progress — Stage 0)
 
 A future layer aims to recognize the **standardized architectural grammar** of
@@ -369,7 +408,7 @@ AMBER), which reads a protein FASTA on stdin and prints JSON
 (`rmsd_nm`, `radius_of_gyration_nm`, `sim_time_ns`, `force_field`). Nothing
 runs and no numbers appear unless a real command is configured.
 
-## Construct-grammar recognizer (in progress — Stage 0)
+## Output & Tier-B plugins
 
 * **HTML report** (`scan --html`) — a polished, self-contained, theme-aware page:
   a colour-coded verdict, plain-language findings, suggested fixes, and cited

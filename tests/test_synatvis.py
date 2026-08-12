@@ -595,6 +595,39 @@ def test_expanded_corpus_is_tiered_and_synthetic_labels_are_exact():
             assert a["end"] == b["start"], "junction spans must tile exactly"
 
 
+def test_calibration_anchors_are_real_and_cited():
+    from synatvis.validation.calibration import load_anchors
+    a = load_anchors()
+    assert a["anchors"], "no calibration anchors defined"
+    for anc in a["anchors"]:
+        assert anc["citation"], "an anchor without a citation is not usable"
+        assert anc["measurements"], "an anchor must carry real measured values"
+        # measurements must be monotonic in intron count -- this is the real biology
+        by_n = {}
+        for m in anc["measurements"]:
+            by_n.setdefault(m["introns"], []).append(m["relative_protein_activity"])
+        assert min(by_n[0]) == 1.0, "baseline must be 1.0"
+        assert min(by_n[1]) > 1.0, "1 intron must measure above baseline"
+    assert "known_defect_exposed" in a
+
+
+def test_calibration_leg_runs_and_reports_the_known_ordering_defect():
+    """The leg must actually detect the documented defect, not quietly pass.
+
+    If this starts failing because there are no violations, the expression model
+    was changed -- update calibration_anchors.yaml's known_defect_exposed block
+    rather than deleting this test.
+    """
+    from synatvis.validation.calibration import run
+    r = run()
+    if not r["available"]:
+        return  # corpus not fetched on this machine
+    assert set(r["scores"]) == {0, 1, 2}
+    assert r["scores"][1] >= r["scores"][0], "1 intron should not score below baseline"
+    # the two-intron ordering defect is real and currently expected
+    assert r["violations"], "expected the documented two-intron ordering violation"
+
+
 def test_so_vocabulary_loads_and_contains_real_verified_terms():
     vocab = load_so_vocabulary()
     ids = valid_so_ids()

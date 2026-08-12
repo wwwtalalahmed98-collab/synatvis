@@ -1,0 +1,84 @@
+version: 1
+purpose: >
+  Real, published, QUANTITATIVE Chlamydomonas expression measurements, used to
+  move the expression-propensity index from "directionally validated against
+  qualitative literature" toward genuinely calibrated. Every anchor must cite a
+  real, retrievable source and record real measured numbers -- never an estimate,
+  never a number inferred from a figure we could not read.
+
+how_to_use: >
+  An anchor constrains ORDERING and, where stated, MAGNITUDE. The expression
+  index is bounded 0-100 and is not a fold-change predictor, so it cannot
+  reproduce a 16x ratio directly. What it must not do is rank a construct that
+  really expresses better as WORSE. Ordering violations are real failures;
+  magnitude mismatch is a known, documented limitation.
+
+status: >
+  ONE anchor set so far (intron-mediated enhancement). That is enough to expose
+  a concrete defect, and NOT enough to call the index calibrated. Do not describe
+  the index as "calibrated" on this basis -- describe it as "one measured anchor,
+  one open defect".
+
+anchors:
+  - id: intron_mediated_enhancement_nanoluc
+    organism: Chlamydomonas reinhardtii
+    compartment: nuclear
+    reporter: NanoLuc (fused to mVenus)
+    assembly: MoClo Level-2 device
+    introns_tested: [RBCS2i1, RBCS2i2]
+    method: >
+      NanoLuc activity measured in relative light units from pools of more than
+      1000 individual transformants per construct, reducing position-effect noise;
+      confirmed at protein level (in-gel detection) and transcript level (mRNA).
+    citation: "Frontiers in Plant Science 2025, PMC11925875 -- 'A novel MoClo-mediated intron insertion system facilitates enhanced transgene expression in Chlamydomonas reinhardtii'"
+    open_access: true
+    retrieved: "2026-08-12 via Europe PMC fullTextXML"
+    measurements:
+      - construct: intron-less control
+        introns: 0
+        relative_protein_activity: 1.0
+        note: "baseline"
+      - construct: "+RBCS2i2 downstream"
+        introns: 1
+        relative_protein_activity: 6.0
+        note: "approximately 6-fold, as stated in the text"
+      - construct: "+RBCS2i1 upstream"
+        introns: 1
+        relative_protein_activity: 9.0
+        note: "9-fold enhancement, as stated in the text"
+      - construct: "both introns"
+        introns: 2
+        relative_protein_activity: 16.0
+        note: "text says 'more than 16-fold'; 16.0 recorded as a documented LOWER BOUND, not an exact value"
+    transcript_level:
+      both_introns_fold: 60
+      single_intron_fold_range: [2, 8]
+      note: "transcript abundance in pools of the strongest clones; single-intron range depends on which intron and which insertion site"
+    required_ordering:
+      - "score(2 introns) >= score(1 intron)"
+      - "score(1 intron) >= score(0 introns)"
+
+known_defect_exposed:
+  id: intron_sequence_scored_as_coding
+  found: "2026-08-12"
+  observed: >
+    Using the real excised bTUB2i1 intron part (pCM0-041, 180 bp, GC 60.6%) inserted
+    into the shipped Cr-codon-optimised GFP case, the expression index scored:
+    0 introns = 66.8, 1 intron = 69.6, 2 introns = 57.4. The single-intron case moves
+    the right way (+2.8) but the two-intron case moves the WRONG way (-9.4), while the
+    real measured effect is the largest in this anchor set (>16x more protein).
+  mechanism: >
+    The expression index computes codon-adaptation metrics (RCA, tAI) across the whole
+    submitted sequence. Intron sequence is not coding sequence and is spliced out before
+    translation, but it is nonetheless included in those codon statistics, so each added
+    intron dilutes the apparent codon adaptation and drags the score down. The scanner's
+    splice module DOES correctly detect these introns ("Cr-type intron-like feature:
+    donor GTRAG / acceptor YAG"), but the expression index never consumes that detection.
+  proposed_fix: >
+    Mask splice-module-detected intron spans out of the coding-metric computation, so
+    RCA/tAI are computed over exonic sequence only. This is a correctness fix grounded
+    in biology (introns are spliced out before translation), NOT a coefficient fitted to
+    the paper above -- it introduces no fitted constant. It would, however, change
+    published validation numbers, so it must be re-run against every validation leg
+    before adoption, and is deliberately NOT applied unilaterally.
+  status: "documented, reproducible via `synatvis validate calibration`; fix NOT yet applied"

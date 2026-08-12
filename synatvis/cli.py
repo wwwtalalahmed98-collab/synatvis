@@ -115,7 +115,8 @@ def _cmd_profiles(args) -> int:
 
 def _cmd_validate(args) -> int:
     from .validation import (leg1_specificity, leg2_injection, leg2_sweep,
-                             leg3_cases, crossspecies, purification_scan, complexome_scan)
+                             leg3_cases, crossspecies, purification_scan, complexome_scan,
+                             calibration)
 
     if args.leg == "leg1":
         return leg1_specificity.main(args.fasta, args.profile)
@@ -131,6 +132,8 @@ def _cmd_validate(args) -> int:
         return purification_scan.main(args.profile)
     if args.leg == "complexome":
         return complexome_scan.main()
+    if args.leg == "calibration":
+        return calibration.main(args.profile)
     print("unknown leg", file=sys.stderr)
     return 2
 
@@ -172,7 +175,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     v = sub.add_parser("validate", help="run a validation leg (CLAUDE.md §7)")
     v.add_argument("leg", choices=["leg1", "leg2", "leg2sweep", "leg3", "crossspecies",
-                                   "purification", "complexome"])
+                                   "purification", "complexome", "calibration"])
     v.add_argument("--profile", default="cr_nuclear")
     v.add_argument("--fasta", help="native Cr CDS FASTA (leg1)")
     v.add_argument("--cases", help="cases.yaml (leg3)")
