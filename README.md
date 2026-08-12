@@ -277,6 +277,31 @@ no-fabrication discipline as the rest of the tool:
   excised parts — cutting each part out from between its Type IIS sites is
   Stage 1 (segmentation), not Step 2. `pCM0-120` (BSR) is absent because the
   2019 archive predates its 2020 publication.
+* **Step 2b — expanded TIERED corpus (1,000 records), done.**
+  `build_corpus.py` builds a 1,000-record corpus, but the count is meaningless
+  without its tier breakdown, and the tiers must never be mixed:
+
+  | tier | n | what it is | valid for |
+  |---|---|---|---|
+  | `cr_primary` | 115 | real deposited **Chlamydomonas** parts | junction grammar **and** Cr identity |
+  | `syntax_only` | 279 | real deposited Type IIS parts from **plant/yeast** kits | junction grammar **only** — not Cr evidence |
+  | `synthetic` | 606 | Level-1 constructs assembled *in silico* from real Cr parts | segmentation training — **not** deposited plasmids |
+
+  Why it is built this way: the Cr MoClo toolkit has ~115 parts — that is the
+  *entire toolkit*, not a sample, so any corpus larger than ~130 necessarily
+  contains non-Cr material. The Golden Gate "common syntax" (Patron 2015) is
+  deliberately shared across toolkits, which makes plant/yeast parts legitimate
+  **architecture** training data and illegitimate **host-biology** evidence —
+  exactly the `CANDIDATE_TIER_ONLY` split IC-2 already encodes. The synthetic
+  tier excises real parts at their real BsaI cut geometry and chains them by
+  matching 4 nt overhangs, so every junction coordinate is exact by construction;
+  a test asserts those labels tile each sequence with no gaps or overlaps.
+  Real sources: Cr MoClo (115), Marillonnet MoClo (88), Patron Plant Parts (95),
+  Dueber YTK (96) — all checksum-pinned. **7 records were quarantined, not
+  silently accepted**: `pICH83955/66/77/88/99`, `pICH84000/84011` each declare
+  10,988 bp in their `LOCUS` header but hold 10,980 — a systematic +8 annotation
+  error in one plasmid family, the same error class pLannotate documents and
+  that IC-3 exists to catch.
 * **Step 3 — Sequence Ontology vocabulary, done.**
   `synatvis/data/construct_grammar/so_vocabulary.yaml` adopts 13 real SO terms
   (promoter, five_prime_UTR, CDS, three_prime_UTR, terminator, intron,

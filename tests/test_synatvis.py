@@ -540,6 +540,61 @@ def test_moclo_fetcher_parses_real_archive_if_present():
     assert all(r["length_bp"] > 0 for r in recs)
 
 
+def test_expanded_corpus_is_tiered_and_synthetic_labels_are_exact():
+    """Offline: if the expanded corpus was built locally, check its integrity.
+
+    The synthetic tier's junction labels are exact by construction, so they must
+    tile each sequence with no gaps or overlaps. A failure here means generated
+    training labels are wrong -- worse than having no synthetic data at all.
+    """
+    import json as _json
+    from synatvis.profiles import PACKAGE_DIR
+    corp = os.path.join(PACKAGE_DIR, "data", "construct_grammar", "moclo_corpus")
+    man_path = os.path.join(corp, "corpus_manifest.json")
+    if not os.path.isfile(man_path):
+        return  # corpus not built on this machine
+    with open(man_path, encoding="utf-8") as fh:
+        man = _json.load(fh)
+
+    tiers = man["by_tier"]
+    assert "cr_primary" in tiers and tiers["cr_primary"] > 0
+    # tiers must stay separate and honestly labelled
+    assert set(tiers) <= {"cr_primary", "syntax_only", "synthetic"}
+    assert sum(tiers.values()) == man["n_total"]
+
+    ids = [r["id"] for r in man["records"]]
+    assert len(ids) == len(set(ids)), "duplicate record ids"
+
+    # only Chlamydomonas records may carry the cr_primary tier
+    for r in man["records"]:
+        if r["tier"] == "cr_primary":
+            assert "hlamydomonas" in r["host"]
+        if r["tier"] == "syntax_only":
+            assert "hlamydomonas" not in r["host"]
+
+    seqs, cur = {}, None
+    with open(os.path.join(corp, "corpus.fasta"), encoding="utf-8") as fh:
+        for line in fh:
+            line = line.rstrip("\n")
+            if line.startswith(">"):
+                cur = line[1:].split()[0]
+                seqs[cur] = []
+            elif cur:
+                seqs[cur].append(line)
+    seqs = {k: "".join(v) for k, v in seqs.items()}
+    assert len(seqs) == man["n_total"]
+
+    for r in man["records"]:
+        if r["tier"] != "synthetic":
+            continue
+        s = seqs[r["id"]]
+        assert len(s) == r["length_bp"]
+        js = r["junctions"]
+        assert js[0]["start"] == 0 and js[-1]["end"] == len(s)
+        for a, b in zip(js, js[1:]):
+            assert a["end"] == b["start"], "junction spans must tile exactly"
+
+
 def test_so_vocabulary_loads_and_contains_real_verified_terms():
     vocab = load_so_vocabulary()
     ids = valid_so_ids()
