@@ -269,10 +269,20 @@ in those statistics and dilutes them. The scanner's `splice` module *does*
 correctly detect these introns (`donor GTRAG / acceptor YAG`); the expression
 index simply never consumes that detection.
 
-The proposed fix (mask detected intron spans out of the coding-metric computation)
-is a correctness fix grounded in biology, introducing **no fitted constant** — but
-it would move published validation numbers, so it is documented and **deliberately
-not applied unilaterally**.
+**The obvious fix was implemented, measured, and rejected.** Masking detected
+intron spans out of the coding-metric computation is correct in principle — but
+measured against 1,000 real native Cr coding sequences (which contain no introns
+at all), **413 of 1,000 (41.3%)** carry a false "deliberate intron" detection,
+and the fix would delete a median **8.0%** (max 58.2%) of their real coding
+sequence before scoring. The zero-intron control collapsed from 66.8 to 3.6. It
+trades one narrow ordering defect for a pervasive one hitting ~4 in 10 real genes.
+
+The real defect is therefore **upstream in detection, not in scoring**: the
+splice module's donor/acceptor + GC filter is not specific enough on GC-rich
+sequence — which is exactly what this tool analyses. Fine as an INFO annotation;
+not safe as a trigger for deleting coding sequence. Intron masking should not be
+re-attempted until that call reaches a single-digit false-positive rate. Full
+write-up in `calibration_anchors.yaml` → `fix_attempt`.
 
 Scope, stated plainly: this is **one** anchor set. It is enough to expose a real
 defect and nowhere near enough to call the index calibrated. The index remains

@@ -78,7 +78,43 @@ known_defect_exposed:
     Mask splice-module-detected intron spans out of the coding-metric computation, so
     RCA/tAI are computed over exonic sequence only. This is a correctness fix grounded
     in biology (introns are spliced out before translation), NOT a coefficient fitted to
-    the paper above -- it introduces no fitted constant. It would, however, change
-    published validation numbers, so it must be re-run against every validation leg
-    before adoption, and is deliberately NOT applied unilaterally.
-  status: "documented, reproducible via `synatvis validate calibration`; fix NOT yet applied"
+    the paper above -- it introduces no fitted constant.
+  status: "documented and reproducible via `synatvis validate calibration`; the fix was IMPLEMENTED, MEASURED, and REJECTED -- see fix_attempt below"
+
+fix_attempt:
+  date: "2026-08-13"
+  outcome: REJECTED
+  what_was_done: >
+    The intron-masking fix was fully implemented in expression.py (deliberate-intron
+    spans -- splice module, INFO severity, GC >= 0.60 -- removed before computing RCA,
+    tAI and folding dG; GC deliberately left on the full sequence because the silencing
+    hazard is chromatin acting on integrated genomic DNA). Every validation leg was
+    captured before the change so the effect could be measured rather than assumed.
+  why_rejected: >
+    It made things worse. The zero-intron control collapsed from 66.8 to 3.6, because
+    the splice module had detected a spurious "deliberate intron" inside an ordinary
+    Cr-codon-optimised GFP that contains no intron at all. Measured across 1,000 real
+    native Chlamydomonas coding sequences -- which by definition contain no introns --
+    413 of 1,000 (41.3%) carry a false "deliberate intron" INFO flag, and the fix would
+    delete a median 8.0% (max 58.2%) of their real coding sequence before scoring them.
+    The fix therefore trades one narrow, known ordering defect for a pervasive one
+    affecting roughly 4 in 10 of every real gene the tool is asked to score.
+  root_cause: >
+    The real defect is upstream, in detection rather than in scoring. The splice module's
+    Cr-consensus donor GTRAG / acceptor YAG pattern with a GC >= 0.60 filter is not
+    specific enough on GC-rich sequence -- and GC-rich sequence is precisely what this
+    tool exists to analyse, so the false-positive rate is highest exactly where it
+    matters most. As an INFO-severity annotation this is tolerable; as a trigger for
+    deleting coding sequence it is not.
+  correct_order_of_work: >
+    Do NOT re-attempt intron masking until the splice module's deliberate-intron call is
+    specific enough to act on (target: single-digit false-positive rate on native genes,
+    measured the same way). Candidate routes: require canonical branch-point context,
+    require the intron to sit in a plausible position, or cross-check against the real
+    intron parts now in the construct-grammar corpus. Only once detection is trustworthy
+    does masking become a safe correctness fix.
+  lesson: >
+    A fix that is biologically correct in principle can still be wrong to ship, because
+    it inherits the error rate of whatever detector triggers it. Measuring before adopting
+    is what caught this; reasoning alone would have shipped a regression affecting 41% of
+    real genes.
