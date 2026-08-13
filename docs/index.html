@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SynAT.Vis — know why an engineered gene will fail, before you build it</title>
+<meta name="description" content="A transcript-level red-flag scanner for recombinant gene cassettes destined for nuclear expression in Chlamydomonas reinhardtii. Diagnostic, cited, and validated on 5,000 real algal genes.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧬</text></svg>">
+<style>
+:root{
+  --paper:#F6F7F1; --ink:#182320; --ink-soft:#4A564F; --ink-faint:#6E7A73;
+  --algae:#2E7D4F; --algae-soft:#E4F0E7;
+  --teal:#1B4B54; --teal-soft:#E4EEEF;
+  --amber:#B8792F; --amber-soft:#F7EEE0;
+  --brick:#B44B3E;
+  --line:#DCDFD5; --line-soft:#E9EBE4;
+  --card:#FFFFFF;
+  --shadow:0 1px 2px rgba(24,35,32,.04), 0 6px 20px rgba(24,35,32,.05);
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#101512; --ink:#E9ECE5; --ink-soft:#AEB8AC; --ink-faint:#8A968D;
+    --algae:#57B77E; --algae-soft:#15251B;
+    --teal:#6FBAC6; --teal-soft:#122126;
+    --amber:#E0A458; --amber-soft:#271F15;
+    --brick:#E08477;
+    --line:#293029; --line-soft:#1C221E;
+    --card:#161C18;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 26px rgba(0,0,0,.36);
+  }
+}
+*{box-sizing:border-box}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+  font-size:17px;line-height:1.65;-webkit-font-smoothing:antialiased;
+}
+a{color:var(--teal)}
+.wrap{max-width:860px;margin:0 auto;padding:0 24px}
+.mono{font-family:"SF Mono",SFMono-Regular,Menlo,Consolas,monospace}
+
+/* hero */
+header{padding:76px 0 52px;border-bottom:1px solid var(--line)}
+.eyebrow{
+  font-family:"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+  font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--algae);font-weight:600;
+}
+h1{
+  font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  font-size:clamp(32px,5.2vw,50px);line-height:1.1;margin:14px 0 0;
+  letter-spacing:-.015em;text-wrap:balance;font-weight:600;
+}
+.lede{font-size:19px;color:var(--ink-soft);max-width:60ch;margin:18px 0 0;text-wrap:balance}
+.cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}
+.btn{
+  display:inline-block;padding:11px 20px;border-radius:9px;text-decoration:none;
+  font-weight:600;font-size:15px;border:1px solid transparent;
+}
+.btn-1{background:var(--teal);color:var(--paper)}
+.btn-2{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn:focus-visible{outline:2px solid var(--algae);outline-offset:2px}
+
+/* stat strip */
+.stats{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  gap:1px;background:var(--line);border:1px solid var(--line);
+  border-radius:12px;overflow:hidden;margin:44px 0 0;
+}
+.stat{background:var(--card);padding:18px 18px 16px}
+.stat .n{font-size:26px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.stat .l{font-size:12.5px;color:var(--ink-faint);margin-top:3px;line-height:1.4}
+
+section{padding:52px 0;border-bottom:1px solid var(--line)}
+h2{
+  font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  font-size:27px;font-weight:600;margin:0 0 6px;text-wrap:balance;
+}
+.sub{color:var(--ink-soft);margin:0 0 26px;max-width:62ch}
+p{max-width:64ch}
+
+/* checkpoint rail */
+.rail{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin:8px 0 20px}
+.ck{border:1px solid var(--line);border-radius:9px;padding:11px 9px;background:var(--card);text-align:center}
+.ck .i{font-family:"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;font-size:11px;color:var(--algae);font-weight:700}
+.ck .t{font-size:12px;font-weight:600;line-height:1.3;margin-top:5px}
+@media(max-width:640px){.rail{grid-template-columns:repeat(3,1fr)}}
+
+/* module grid */
+.mods{display:grid;grid-template-columns:repeat(auto-fit,minmax(228px,1fr));gap:12px}
+.mod{border:1px solid var(--line);border-radius:10px;padding:15px 16px;background:var(--card);box-shadow:var(--shadow)}
+.mod h3{margin:0 0 5px;font-size:15px;font-family:"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;color:var(--teal)}
+.mod p{margin:0;font-size:14px;color:var(--ink-soft);max-width:none}
+
+/* table */
+.tbl{width:100%;border-collapse:collapse;font-size:15px;margin-top:6px}
+.tbl th{
+  text-align:left;font-family:"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+  font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-faint);
+  padding:0 12px 9px 0;border-bottom:1px solid var(--line);font-weight:600;
+}
+.tbl td{padding:11px 12px 11px 0;border-bottom:1px solid var(--line-soft);vertical-align:top}
+.tbl td:last-child{color:var(--ink-soft);font-size:14px}
+.tbl .num{font-variant-numeric:tabular-nums;font-weight:700}
+.scroll{overflow-x:auto}
+
+/* honesty box */
+.honest{
+  background:var(--amber-soft);border-left:3px solid var(--amber);
+  border-radius:9px;padding:20px 22px;margin-top:8px;
+}
+.honest h3{margin:0 0 8px;font-size:16px;color:var(--amber)}
+.honest ul{margin:0;padding-left:19px}
+.honest li{margin:7px 0;font-size:15px;color:var(--ink-soft)}
+.honest li b{color:var(--ink)}
+
+code{
+  font-family:"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em;
+  background:var(--line-soft);padding:2px 6px;border-radius:5px;
+}
+pre{
+  background:var(--card);border:1px solid var(--line);border-radius:10px;
+  padding:16px 18px;overflow-x:auto;font-size:14px;line-height:1.6;
+}
+pre code{background:none;padding:0}
+
+footer{padding:40px 0 64px;color:var(--ink-faint);font-size:14px}
+footer a{color:var(--teal)}
+.founders{display:flex;flex-wrap:wrap;gap:26px;margin:10px 0 22px}
+.founder b{color:var(--ink);display:block;font-size:15px}
+.founder span{font-size:13.5px;color:var(--ink-faint)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="eyebrow">Synthetic Algal Transcript Visualiser</div>
+    <h1>Know why an engineered gene will fail — before you spend a year building it.</h1>
+    <p class="lede">SynAT.Vis reads a designed gene cassette for <em>Chlamydomonas reinhardtii</em> and reports, in plain language, the specific reasons it may not produce an intact, well-translated transcript in that host — with a citation and a suggested fix for every flag.</p>
+    <div class="cta">
+      <a class="btn btn-1" href="https://github.com/wwwtalalahmed98-collab/synatvis">View the source</a>
+      <a class="btn btn-2" href="#validation">See the validation</a>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="n">5,000</div><div class="l">real algal genes used to set and hold out every threshold</div></div>
+      <div class="stat"><div class="n">1.000</div><div class="l">AUC separating native from 1,020 foreign genes</div></div>
+      <div class="stat"><div class="n">9</div><div class="l">diagnostic modules, each anchored to published work</div></div>
+      <div class="stat"><div class="n">54/54</div><div class="l">tests passing; core needs no third-party packages</div></div>
+    </div>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <h2>The problem</h2>
+    <p class="sub">Building a transgenic algal strain takes months and real money. A large share of designs fail for reasons that were visible in the DNA sequence the whole time — and generic tools miss them, because they assume the wrong biology.</p>
+    <p><em>Chlamydomonas</em> runs <strong>opposite</strong> to land-plant intuition on several axes. Its nuclear genes are GC-rich (~68%), so <strong>low</strong> GC is the silencing hazard, not high. Its poly(A) signal is UGUAA, not AAUAAA. Its introns are assets that boost expression, not hazards to be removed. A tool tuned for tobacco will confidently give you the wrong answer.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>How it works</h2>
+    <p class="sub">The same six stages a real gene passes through inside a real cell, each with its own pass/warn/fail check.</p>
+    <div class="rail">
+      <div class="ck"><div class="i">01</div><div class="t">Pre-transcription</div></div>
+      <div class="ck"><div class="i">02</div><div class="t">Transcription</div></div>
+      <div class="ck"><div class="i">03</div><div class="t">Post-transcription</div></div>
+      <div class="ck"><div class="i">04</div><div class="t">Pre-translation</div></div>
+      <div class="ck"><div class="i">05</div><div class="t">Translation</div></div>
+      <div class="ck"><div class="i">06</div><div class="t">Post-translation</div></div>
+    </div>
+    <div class="mods">
+      <div class="mod"><h3>codon</h3><p>Rare-codon clusters, low adaptation, codon-pair bias and tRNA-pool fit.</p></div>
+      <div class="mod"><h3>composition</h3><p>GC troughs and homopolymers — inverted for this host, where low GC is the hazard.</p></div>
+      <div class="mod"><h3>cloning</h3><p>Type IIS sites (BsaI, BsmBI, BbsI, SapI) that must be domesticated before assembly.</p></div>
+      <div class="mod"><h3>structure</h3><p>Start-codon context, 5'UTR length, and mRNA folding energy that impedes initiation.</p></div>
+      <div class="mod"><h3>uorf</h3><p>Upstream start codons competing with the real one.</p></div>
+      <div class="mod"><h3>polya</h3><p>Premature UGUAA poly(A) signals in G/C-rich context.</p></div>
+      <div class="mod"><h3>splice</h3><p>Intended-intron sanity plus accidental splice pairs.</p></div>
+      <div class="mod"><h3>instability</h3><p>AU-rich element clusters that destabilise the message.</p></div>
+      <div class="mod"><h3>silencing</h3><p>Chromatin risk — shipped quarantined and clearly marked heuristic.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="validation">
+  <div class="wrap">
+    <h2>Validation</h2>
+    <p class="sub">Every number below is reproducible from the public repository by running the shipped validation legs.</p>
+    <div class="scroll">
+      <table class="tbl">
+        <tr><th>Test</th><th>Result</th><th>What it establishes</th></tr>
+        <tr><td>Specificity</td><td class="num">1–4% FP</td><td>Thresholds set on 500 real genes, then held out against 4,500 disjoint genes they never saw. They generalise rather than overfit.</td></tr>
+        <tr><td>Cross-species</td><td class="num">AUC 1.000</td><td>1,000 native transcripts vs 1,020 foreign (human, yeast, Arabidopsis). 97% accuracy on a held-out test half. The tool is host-specific, not flag-everything.</td></tr>
+        <tr><td>Literature cases</td><td class="num">100%</td><td>Real published rescue pairs — a native AT-rich reporter versus its codon-optimised twin — ranked correctly, with a plastid gene correctly gated out.</td></tr>
+        <tr><td>Complex membership</td><td class="num">0 / 13-13</td><td>Zero false positives across 5,000 genes; all 13 named chloroplast genes matched to the right protein complex.</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>What it refuses to do</h2>
+    <p class="sub">The constraints are the product. A diagnostic that overclaims is worse than none, because it gets trusted.</p>
+    <div class="honest">
+      <ul>
+        <li><b>It emits no composite "expression score."</b> It returns a ranked list of specific, named, cited problems — because a single number invites a decision the evidence cannot support.</li>
+        <li><b>It is validated, not calibrated.</b> The expression-propensity module has one real measured anchor from published data and one documented open defect. We say so in the README rather than rounding up.</li>
+        <li><b>It never fabricates a fix.</b> Where no clean synonymous edit exists, it says so.</li>
+        <li><b>It stays silent outside its scope.</b> A nuclear report says nothing about a chloroplast construct, and the tool cannot see protein stability or proteolysis.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Try it</h2>
+    <p class="sub">The validated core runs on the Python standard library alone — no heavy dependencies, no GPU, no account.</p>
+<pre><code>git clone https://github.com/wwwtalalahmed98-collab/synatvis
+cd synatvis
+python -m synatvis scan your_cassette.fasta --html --out report.html</code></pre>
+    <p style="margin-top:18px">Optional backends upgrade specific features and the tool degrades gracefully without them. Opt-in plugin slots exist for external structure-prediction and molecular-dynamics engines; nothing runs and no numbers appear unless you configure your own.</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="founders">
+      <div class="founder"><b>Ahmed Hussain Shah</b><span>Co-founder — scientific concept &amp; biology</span></div>
+      <div class="founder"><b>Talal Ahmed</b><span>Co-founder — software architecture &amp; development</span></div>
+    </div>
+    <p style="max-width:64ch;margin:0 0 12px">SynAT.Vis is a research prototype under active development, released source-available under the PolyForm Noncommercial License 1.0.0. Non-commercial research, study and evaluation are freely permitted.</p>
+    <p style="margin:0"><a href="https://github.com/wwwtalalahmed98-collab/synatvis">github.com/wwwtalalahmed98-collab/synatvis</a></p>
+  </div>
+</footer>
+
+</body>
+</html>
