@@ -38,6 +38,11 @@ def run(tx, profile: Dict) -> List[Flag]:
 
     min_i = int(cfg["min_intron"])
     max_i = int(cfg["max_intron"])
+    # deliberate-intron thresholds (measured; see profile comments + THRESHOLDS.md)
+    min_len = int(cfg.get("intron_min_len", 100))
+    max_delta = float(cfg.get("intron_max_delta_gc", 5.0))
+    min_pyr = float(cfg.get("intron_min_polypyrimidine", 50.0))
+    flank_w = int(cfg.get("intron_flank_window", 90))
     cds = tx.cds.upper()
     offset = tx.cds_start
 
@@ -59,7 +64,23 @@ def run(tx, profile: Dict) -> List[Flag]:
                 seen_spans.append(intron_end)
                 gc = gc_fraction(intron)
                 in_frame_removal = (len(intron) % 3 == 0)
-                if gc >= 0.60:
+
+                # Deliberate-intron call, measured rather than assumed. The old
+                # test was `gc >= 0.60`, which almost all Cr sequence satisfies
+                # (~68% GC) -- it fired on 39% of real intron-less native genes.
+                # Real Cr introns are AT-RICHER than their flanking exons
+                # (median -6.3% GC), longer (median 230 nt), and carry a
+                # polypyrimidine tract before the acceptor.
+                lf = cds[max(0, intron_start - flank_w):intron_start]
+                rf = cds[intron_end:intron_end + flank_w]
+                flank = lf + rf
+                delta_gc = (gc_fraction(intron) - gc_fraction(flank)) * 100.0 if flank else 0.0
+                tail = intron[-25:-3] if len(intron) >= 28 else intron
+                polypyr = 100.0 * sum(tail.count(b) for b in "CT") / max(1, len(tail))
+                deliberate = (len(intron) >= min_len
+                              and delta_gc <= max_delta
+                              and polypyr >= min_pyr)
+                if deliberate:
                     flags.append(Flag(
                         module=NAME, severity=Severity.INFO,
                         start=offset + intron_start, end=offset + intron_end,
@@ -71,7 +92,10 @@ def run(tx, profile: Dict) -> List[Flag]:
                                  f"verify boundaries."),
                         evidence=EVIDENCE, suggested_edit=None,
                         detail={"intron_len": len(intron), "intron_gc": round(gc, 3),
-                                "in_frame_removal": in_frame_removal},
+                                "in_frame_removal": in_frame_removal,
+                                "delta_gc_vs_flank": round(delta_gc, 1),
+                                "polypyrimidine_pct": round(polypyr, 1),
+                                "deliberate": True},
                     ))
                 elif not in_frame_removal:
                     flags.append(Flag(

@@ -118,3 +118,53 @@ fix_attempt:
     it inherits the error rate of whatever detector triggers it. Measuring before adopting
     is what caught this; reasoning alone would have shipped a regression affecting 41% of
     real genes.
+
+detection_work_2026_08_13:
+  status: "PARTIALLY RESOLVED -- specificity fixed, a separate detection gap surfaced"
+  positive_set: >
+    38,788 real annotated Chlamydomonas introns, derived from the gaps between exons in
+    CDS join() features of 60 NCBI genomic records. Real annotations, not predictions.
+  what_the_data_showed: >
+    The old test was `GC >= 0.60` absolute. Chlamydomonas coding sequence averages ~68%
+    GC, so essentially every candidate passed -- the filter was not filtering. Measured
+    reality is the opposite of the assumption: real Cr introns are AT-RICHER than their
+    flanking exons (median -6.3% GC), longer (median 230 nt vs 86 nt for false
+    candidates), and carry a polypyrimidine tract before the acceptor (63.6% vs 50.0%).
+  new_rule:
+    intron_min_len: 100          # real p10 = 127 nt
+    intron_max_delta_gc: 3.0     # IS the real p90
+    intron_min_polypyrimidine: 50.0   # IS the real p10
+  measured_result:
+    false_positive_rate_before: "41.3% of 992 real intron-less native genes"
+    false_positive_rate_after: "9.1% of the same 992 genes"
+    sensitivity_after: "82.8% on 38,788 real annotated introns"
+    validation_legs_changed: "none -- all seven byte-for-byte identical; 54/54 tests pass"
+  why_no_leg_moved: >
+    Leg 1 counts only MEDIUM/HIGH severity false positives. The splice module emits its
+    intron call at INFO and its accidental-pair warning at LOW, so it never contributed
+    to the published specificity numbers. That is precisely why a 41% false-positive rate
+    survived unnoticed until calibration forced a look at the informational layer.
+
+open_defect_real_introns_not_detected:
+  found: "2026-08-13"
+  severity: "significant -- arguably the most important thing this module should catch"
+  observed: >
+    A real bTUB2i1 intron part (pCM0-041, excised at real BsaI geometry, 180 bp) inserted
+    into a Cr-codon-optimised CDS is NOT reported as a deliberate intron -- neither by the
+    new rule NOR by the old one. The old rule appeared to detect it, but inspection of the
+    flag showed it was reporting the unrelated 110 bp FALSE candidate from the host CDS
+    (intron_len: 110, not 180). It looked correct by coincidence.
+  implication: >
+    The tool cannot currently recognise the intron parts the Cr MoClo toolkit actually
+    ships. This is pre-existing and was neither caused nor fixed by the specificity work;
+    it was hidden behind that coincidence. It is ALSO the true blocker for intron masking:
+    masking cannot help if detection cannot find the intron the user deliberately inserted.
+  next_step: >
+    Diagnose why the candidate enumeration misses it -- likely the donor/acceptor pair
+    inside the excised part does not match GTRAG/YAG under the current min/max intron
+    span and one-intron-per-donor scan. Use the real intron parts now in the
+    construct-grammar corpus as the positive test set.
+  do_not_claim: >
+    Do not describe the intron problem as solved. The accurate summary is: false-positive
+    rate cut 4x and characterised; detection of real inserted MoClo intron parts remains
+    OPEN.

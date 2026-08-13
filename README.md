@@ -279,10 +279,47 @@ trades one narrow ordering defect for a pervasive one hitting ~4 in 10 real gene
 
 The real defect is therefore **upstream in detection, not in scoring**: the
 splice module's donor/acceptor + GC filter is not specific enough on GC-rich
-sequence — which is exactly what this tool analyses. Fine as an INFO annotation;
-not safe as a trigger for deleting coding sequence. Intron masking should not be
-re-attempted until that call reaches a single-digit false-positive rate. Full
-write-up in `calibration_anchors.yaml` → `fix_attempt`.
+sequence — which is exactly what this tool analyses.
+
+### Splice specificity, fixed against 38,788 real introns
+
+A positive set of **38,788 real annotated Cr introns** (gaps between exons in
+CDS `join()` features of NCBI genomic records) showed the old `GC >= 0.60`
+absolute test was inert: Cr coding sequence averages ~68% GC, so nearly every
+candidate passed. The measured reality is the opposite of the assumption —
+real Cr introns are **AT-richer than their flanking exons** (median −6.3% GC),
+**longer** (median 230 nt vs 86 nt for false candidates), and carry a
+**polypyrimidine tract** before the acceptor (63.6% vs 50.0%).
+
+The rule is now length ≥ 100 nt, GC-vs-flank ≤ +3.0%, polypyrimidine ≥ 50% —
+each value a measured percentile of the real distribution (p10, p90, p10
+respectively), not a chosen constant.
+
+| | before | after |
+|---|---|---|
+| False positives on 992 real intron-less native genes | **41.3%** | **9.1%** |
+| Sensitivity on 38,788 real annotated introns | — | **82.8%** |
+| Published validation numbers changed | — | **none** (all seven legs byte-identical) |
+
+Why no leg moved: Leg 1 counts only **medium/high** false positives, and this
+module emits at INFO/LOW. That is exactly how a 41% false-positive rate survived
+unnoticed until calibration forced a look at the informational layer.
+
+### Still open: real inserted MoClo introns are not detected
+
+Testing surfaced a **separate, more serious defect**. A real bTUB2i1 intron part
+(pCM0-041, excised at real BsaI geometry) inserted into a CDS is **not** reported
+as a deliberate intron — by the new rule *or* the old one. The old rule appeared
+to catch it, but the flag was reporting an unrelated 110 bp *false* candidate
+from the host sequence, not the 180 bp intron actually inserted. It looked
+correct by coincidence.
+
+So the tool cannot currently recognise the intron parts the Cr MoClo toolkit
+ships. This is pre-existing, was neither caused nor fixed here, and is the true
+blocker for intron masking — masking cannot help if detection misses the intron
+the user deliberately inserted. **The intron problem is not solved**: the
+false-positive rate is cut 4× and characterised; detection remains open. Full
+write-up in `calibration_anchors.yaml`.
 
 Scope, stated plainly: this is **one** anchor set. It is enough to expose a real
 defect and nowhere near enough to call the index calibrated. The index remains

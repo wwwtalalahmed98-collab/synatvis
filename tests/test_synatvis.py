@@ -595,6 +595,55 @@ def test_expanded_corpus_is_tiered_and_synthetic_labels_are_exact():
             assert a["end"] == b["start"], "junction spans must tile exactly"
 
 
+def test_splice_deliberate_intron_specificity_on_native_genes():
+    """Guard the measured specificity win: an absolute GC>=0.60 rule flagged 41.3%
+    of real intron-less native Cr genes as containing a 'deliberate intron'. The
+    measured rule (length + GC relative to flanks + polypyrimidine tract) cut that
+    to 9.1%. This asserts we never drift back toward the old behaviour.
+    """
+    from synatvis.seqio import Transcript, read_fasta
+    from synatvis.scanner import scan as _scan
+    from synatvis.flags import Severity
+    from synatvis.profiles import PACKAGE_DIR
+    path = os.path.join(PACKAGE_DIR, "data", "native_cr_cds.fasta")
+    if not os.path.isfile(path):
+        return
+    n = hit = 0
+    for name, seq in read_fasta(path):
+        seq = seq.strip()
+        if len(seq) < 200:
+            continue
+        n += 1
+        res = _scan(Transcript(cds=seq, name=name), profile="cr_nuclear")
+        if any(f.module == "splice" and f.severity == Severity.INFO for f in res.flags):
+            hit += 1
+        if n >= 200:
+            break
+    assert n > 0
+    rate = hit / n
+    # measured 9.1% over 992 genes; 20% leaves headroom for sampling noise while
+    # still failing loudly if the old ~41% behaviour ever returns
+    assert rate < 0.20, f"deliberate-intron false-positive rate regressed to {rate:.1%}"
+
+
+def test_splice_does_not_flag_a_clean_cr_optimised_cds():
+    """The Cr-codon-optimised GFP literature case contains no intron. It used to
+    draw a false 'deliberate intron' call, which is what made the intron-masking
+    fix delete real coding sequence."""
+    import re as _re
+    from synatvis.seqio import Transcript
+    from synatvis.scanner import scan as _scan
+    from synatvis.flags import Severity
+    from synatvis.profiles import PACKAGE_DIR
+    cases = open(os.path.join(PACKAGE_DIR, "data", "cases.yaml"), encoding="utf-8").read()
+    m = _re.search(r"id: gfp_cr_codon_optimized.*?sequence: \"([ACGT]+)\"", cases, _re.S)
+    assert m
+    res = _scan(Transcript(cds=m.group(1), name="gfp"), profile="cr_nuclear")
+    calls = [f for f in res.flags
+             if f.module == "splice" and f.severity == Severity.INFO]
+    assert not calls, f"false deliberate-intron call on an intron-less CDS: {calls}"
+
+
 def test_calibration_anchors_are_real_and_cited():
     from synatvis.validation.calibration import load_anchors
     a = load_anchors()

@@ -69,6 +69,16 @@ splice:
   max_intron: 500
   inserted_intron_name: rbcS2i1       # rbcS2 intron 1, standard expression booster
   priority: low
+  # --- deliberate-intron call: thresholds MEASURED against 38,788 real annotated
+  # Cr introns (NCBI genomic CDS join() features) vs every false candidate raised
+  # inside 1,000 real intron-less native CDS. Each value is a percentile of the
+  # real intron distribution, not a guess. See THRESHOLDS.md.
+  # Replaces an absolute `GC >= 0.60` test that was satisfied by almost all Cr
+  # sequence (~68% GC) and so flagged 39% of intron-less native genes.
+  intron_min_len: 100                 # real introns: p10 = 127 nt, median = 230
+  intron_max_delta_gc: 3.0            # GC(intron) - GC(flanks); this IS the real p90
+  intron_min_polypyrimidine: 50.0     # C+T % in 25 nt before AG; real p10 = 50.0 %
+  intron_flank_window: 90             # nt of exon context either side used for delta-GC
 
 # --- structure / start context ------------------------------------------------
 structure:
