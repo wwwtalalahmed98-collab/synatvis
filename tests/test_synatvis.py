@@ -644,6 +644,19 @@ def test_splice_does_not_flag_a_clean_cr_optimised_cds():
     assert not calls, f"false deliberate-intron call on an intron-less CDS: {calls}"
 
 
+def test_fetch_structure_reads_gene_from_fasta_header(tmp_path):
+    """Offline check of the structure fetcher's parsing. The network paths
+    (UniProt / AlphaFold) are deliberately not tested here -- a unit test must not
+    depend on two external services being reachable."""
+    from synatvis.fetch_structure import gene_from_fasta
+    p = tmp_path / "g.fasta"
+    p.write_text(">RBCS2 some description here\nATGGCC\n")
+    assert gene_from_fasta(str(p)) == "RBCS2"
+    p2 = tmp_path / "empty.fasta"
+    p2.write_text("ATGGCC\n")
+    assert gene_from_fasta(str(p2)) == ""
+
+
 def test_calibration_anchors_are_real_and_cited():
     from synatvis.validation.calibration import load_anchors
     a = load_anchors()
