@@ -4,6 +4,8 @@ purpose: "A persistent record of what has actually been manufactured in algal sy
 scope_honesty: "CURATED and EXTENSIBLE, not an exhaustive census. Algal expression has a large and growing literature and no complete public registry exists, so completeness is NOT claimed. Entries marked confidence 'reported' reflect the literature as summarised here and should be re-checked against the primary paper before being cited in a manuscript or grant."
 field_meanings: "product=common name; gene=conventional symbol; host=algal host; compartment=nuclear|chloroplast|native; origin=transgenic|native; product_class=molecule type; application=use; confidence=verified_sequence|reported|indicative"
 
+reference_protein_note: "Reference proteins in algae_product_refs.fasta are real UniProt entries, organism-verified. One caveat: the C-phycocyanin reference is P00310 from Mastigocladus laminosus, not the Arthrospira/red-algal host this catalogue lists -- phycocyanin is highly conserved across cyanobacteria so it is a serviceable reference, but the source organism differs. HYDA1 ([FeFe]-hydrogenase) has no reference: no UniProt entry matched the keyword and length checks, so it was left out rather than guessed."
+
 products:
   - product: "Human growth hormone"
     gene: GH1
