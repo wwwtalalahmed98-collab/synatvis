@@ -158,6 +158,24 @@ def build_journey(transcript, profile: Dict, scan_result, expression,
            ref="Kyte-Doolittle", detail="Positive = hydrophobic (aggregation/solubility watch)."),
     ]})
 
+    # 8a — prior art: has this protein already been made in algae?
+    from .algae_products import identify as _identify_products
+    _prods = _identify_products(name=transcript.name, cds=transcript.cds)
+    if _prods:
+        cp.append({"key": "algae_prior_art", "title": "Known algal product",
+                   "symbol": "vial", "organelle": "bench", "level": "posttranslation",
+                   "params": [
+            _p(h.product,
+               (f"{h.host} · {h.compartment} · {h.origin}" if h.match_type == "name"
+                else f"resembles — {h.similarity:.0%} peptide k-mer containment"),
+               status="info",
+               ref=f"catalogue confidence: {h.confidence}",
+               detail=(h.application + (
+                   "" if h.match_type == "name" else
+                   " — SIMILARITY is a screening aid, not an identification; confirm by alignment.")))
+            for h in _prods[:4]
+        ]})
+
     # 8b — multiprotein complex membership (name-based, cryo-ET-anchored context)
     from .complexome import identify_complexes
     complex_matches = identify_complexes(transcript.name)

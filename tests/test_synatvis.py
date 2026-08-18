@@ -657,6 +657,54 @@ def test_fetch_structure_reads_gene_from_fasta_header(tmp_path):
     assert gene_from_fasta(str(p2)) == ""
 
 
+def test_algae_product_catalogue_loads_and_is_well_formed():
+    from synatvis.algae_products import load_catalogue, catalogue_stats
+    cat = load_catalogue()
+    assert len(cat) >= 25, "catalogue failed to parse (stdlib YAML fallback is strict)"
+    for e in cat:
+        assert e.get("product") and e.get("gene")
+        assert e.get("origin") in ("transgenic", "native")
+        assert e.get("confidence") in ("verified_sequence", "reported", "indicative")
+    s = catalogue_stats()
+    assert s["by_origin"].get("transgenic", 0) > 0
+    assert s["by_origin"].get("native", 0) > 0
+
+
+def test_algae_product_name_and_similarity_matching():
+    """Name matching must be exact; similarity must link the SAME protein encoded by
+    DIFFERENT DNA, and must stay silent on unrelated sequence."""
+    import re as _re
+    from synatvis.algae_products import identify
+    from synatvis.profiles import PACKAGE_DIR
+
+    named = identify(name="RBCS2")
+    assert named and named[0].match_type == "name"
+
+    cases = open(os.path.join(PACKAGE_DIR, "data", "cases.yaml"), encoding="utf-8").read()
+    native_gfp = _re.search(r'id: gfp_native_at_rich.*?sequence: "([ACGT]+)"',
+                            cases, _re.S).group(1)
+    # native AT-rich GFP shares no meaningful DNA identity with the Cr-optimised
+    # reference, but encodes the same protein -- similarity must still find it
+    sim = [h for h in identify(name="unnamed_query", cds=native_gfp)
+           if h.match_type == "similarity"]
+    assert sim, "similarity route failed to link the same protein from different DNA"
+    assert sim[0].similarity >= 0.6
+
+    rnd = "ATG" + "GCTAGCACCTGACTGATCGATCGTACGATCAGCTAGCATCGATCGATCGTAGCTAGCTA" * 4 + "TAA"
+    assert not identify(name="definitely_not_catalogued", cds=rnd)
+
+
+def test_journey_reports_known_algal_product():
+    from synatvis.scanner import scan as _scan
+    from synatvis.expression import predict_expression
+    from synatvis.journey import build_journey
+    tx = Transcript(name="RBCS2", cds="ATG" + "GCCGGCGAGGCC" * 12 + "TAA")
+    res = _scan(tx, profile="cr_nuclear")
+    expr = predict_expression(tx, res.profile, scan_result=res, run_ml=False)
+    J = build_journey(tx, res.profile, res, expr)
+    assert "algae_prior_art" in [c["key"] for c in J["checkpoints"]]
+
+
 def test_calibration_anchors_are_real_and_cited():
     from synatvis.validation.calibration import load_anchors
     a = load_anchors()

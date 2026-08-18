@@ -1,0 +1,255 @@
+version: 1
+title: "Proteins and peptides produced in algae -- transgenic and native"
+purpose: "A persistent record of what has actually been manufactured in algal systems, so that when a user scans a gene the tool can say 'this is a known algal product' (or 'this resembles one') and bring the prior art with it, rather than treating every scan as if nothing had ever been expressed in algae before."
+scope_honesty: "CURATED and EXTENSIBLE, not an exhaustive census. Algal expression has a large and growing literature and no complete public registry exists, so completeness is NOT claimed. Entries marked confidence 'reported' reflect the literature as summarised here and should be re-checked against the primary paper before being cited in a manuscript or grant."
+field_meanings: "product=common name; gene=conventional symbol; host=algal host; compartment=nuclear|chloroplast|native; origin=transgenic|native; product_class=molecule type; application=use; confidence=verified_sequence|reported|indicative"
+
+products:
+  - product: "Human growth hormone"
+    gene: GH1
+    host: Chlamydomonas reinhardtii
+    compartment: chloroplast
+    origin: transgenic
+    product_class: hormone
+    application: "Growth disorders; an early proof that algae can make a human hormone"
+    confidence: reported
+  - product: "Erythropoietin"
+    gene: EPO
+    host: Chlamydomonas reinhardtii
+    compartment: nuclear
+    origin: transgenic
+    product_class: glycoprotein hormone
+    application: "Anaemia. Glycosylation differs from mammalian cells -- a central caveat for algal EPO"
+    confidence: reported
+  - product: "Interferon beta"
+    gene: IFNB1
+    host: Chlamydomonas reinhardtii
+    compartment: chloroplast
+    origin: transgenic
+    product_class: cytokine
+    application: "Antiviral / immunomodulatory"
+    confidence: reported
+  - product: "Vascular endothelial growth factor"
+    gene: VEGF
+    host: Chlamydomonas reinhardtii
+    compartment: chloroplast
+    origin: transgenic
+    product_class: growth factor
+    application: "Angiogenesis research; wound healing"
+    confidence: reported
+  - product: "High mobility group protein B1"
+    gene: HMGB1
+    host: Chlamydomonas reinhardtii
+    compartment: chloroplast
+    origin: transgenic
+    product_class: signalling protein
+    application: "Wound healing and inflammation research"
+    confidence: reported
+  - product: "Glutamic acid decarboxylase 65"
+    gene: GAD65
+    host: Chlamydomonas reinhardtii
+    compartment: chloroplast
+    origin: transgenic
+    product_class: autoantigen
+    application: "Type 1 diabetes diagnostics and tolerance induction"
+    confidence: reported
+  - product: "Anti-herpes simplex virus IgA (large single-chain)"
+    gene: "HSV8-lsc"
+    host: Chlamydomonas reinhardtii
+    compartment: chloroplast
+    origin: transgenic
+    product_class: antibody
+    application: "Passive immunotherapy; the landmark algal antibody demonstration"
+    confidence: reported
+  - product: "Anti-CD22 single-chain antibody-gelonin immunotoxin"
+    gene: "alphaCD22-gelonin"
+    host: Chlamydomonas reinhardtii
+    compartment: chloroplast
+    origin: transgenic
+    product_class: immunotoxin
+    application: "B-cell malignancies. Toxin fusions are attractive in algae because the toxin is not toxic to the alga"
+    confidence: reported
+  - product: "Malaria transmission-blocking antigen Pfs25"
+    gene: Pfs25
+    host: Chlamydomonas reinhardtii
+    compartment: chloroplast
+    origin: transgenic
+    product_class: vaccine antigen
+    application: "Transmission-blocking malaria vaccine candidate"
+    confidence: reported
+  - product: "Foot-and-mouth disease virus VP1"
+    gene: VP1
+    host: Chlamydomonas reinhardtii
+    compartment: chloroplast
+    origin: transgenic
+    product_class: vaccine antigen
+    application: "Veterinary vaccine; oral delivery via whole-algae feed"
+    confidence: reported
+  - product: "Classical swine fever virus E2"
+    gene: E2
+    host: Chlamydomonas reinhardtii
+    compartment: chloroplast
+    origin: transgenic
+    product_class: vaccine antigen
+    application: "Veterinary vaccine candidate"
+    confidence: reported
+  - product: "Bovine mammary-associated serum amyloid"
+    gene: "M-SAA"
+    host: Chlamydomonas reinhardtii
+    compartment: chloroplast
+    origin: transgenic
+    product_class: immune protein
+    application: "Gut mucosal protection in livestock; oral delivery"
+    confidence: reported
+  - product: "White spot syndrome virus VP28"
+    gene: VP28
+    host: Chlamydomonas reinhardtii
+    compartment: chloroplast
+    origin: transgenic
+    product_class: vaccine antigen
+    application: "Shrimp aquaculture vaccine; oral delivery"
+    confidence: reported
+  - product: "Xylanase"
+    gene: xynA
+    host: Chlamydomonas reinhardtii
+    compartment: chloroplast
+    origin: transgenic
+    product_class: enzyme
+    application: "Feed and pulp processing"
+    confidence: reported
+  - product: "Endo-beta-mannanase"
+    gene: man1
+    host: Chlamydomonas reinhardtii
+    compartment: chloroplast
+    origin: transgenic
+    product_class: enzyme
+    application: "Feed enzyme; mannan degradation"
+    confidence: reported
+  - product: "Phytase"
+    gene: appA
+    host: Chlamydomonas reinhardtii
+    compartment: chloroplast
+    origin: transgenic
+    product_class: enzyme
+    application: "Feed phosphate release; reduces phosphate effluent"
+    confidence: reported
+  - product: "Green fluorescent protein"
+    gene: GFP
+    host: Chlamydomonas reinhardtii
+    compartment: nuclear
+    origin: transgenic
+    product_class: reporter
+    application: "Imaging and expression readout. Requires Cr codon optimisation -- the classic rescue case"
+    confidence: verified_sequence
+  - product: "Firefly luciferase"
+    gene: luc
+    host: Chlamydomonas reinhardtii
+    compartment: nuclear
+    origin: transgenic
+    product_class: reporter
+    application: "Quantitative expression readout"
+    confidence: verified_sequence
+  - product: "Bleomycin/zeocin resistance"
+    gene: ble
+    host: Chlamydomonas reinhardtii
+    compartment: nuclear
+    origin: transgenic
+    product_class: selection marker
+    application: "Standard Cr nuclear selection; also used as a stabilising fusion partner"
+    confidence: reported
+  - product: "Aminoglycoside phosphotransferase VIII"
+    gene: aphVIII
+    host: Chlamydomonas reinhardtii
+    compartment: nuclear
+    origin: transgenic
+    product_class: selection marker
+    application: "Paromomycin selection"
+    confidence: reported
+  - product: "Blasticidin S deaminase"
+    gene: BSR
+    host: Chlamydomonas reinhardtii
+    compartment: nuclear
+    origin: transgenic
+    product_class: selection marker
+    application: "Blasticidin selection; part of the Cr MoClo toolkit (pCM0-120)"
+    confidence: reported
+  - product: "C-phycocyanin"
+    gene: cpcA/cpcB
+    host: "Arthrospira (Spirulina); red algae"
+    compartment: native
+    origin: native
+    product_class: phycobiliprotein
+    application: "Natural blue colourant, fluorescent label, antioxidant. One of the highest-value native algal proteins"
+    confidence: reported
+  - product: "B-phycoerythrin"
+    gene: cpeA/cpeB
+    host: "Porphyridium and other red algae"
+    compartment: native
+    origin: native
+    product_class: phycobiliprotein
+    application: "Fluorescent labels for flow cytometry and immunoassay"
+    confidence: reported
+  - product: "Griffithsin"
+    gene: grft
+    host: "Griffithsia sp. (red alga)"
+    compartment: native
+    origin: native
+    product_class: antiviral lectin
+    application: "Broad-spectrum antiviral microbicide candidate; binds viral surface glycans"
+    confidence: reported
+  - product: "Cyanovirin-N"
+    gene: cvnH
+    host: "Nostoc ellipsosporum (cyanobacterium)"
+    compartment: native
+    origin: native
+    product_class: antiviral lectin
+    application: "Antiviral microbicide candidate. Cyanobacterial rather than eukaryotic algal"
+    confidence: reported
+  - product: "Rubisco small subunit"
+    gene: RBCS2
+    host: Chlamydomonas reinhardtii
+    compartment: native
+    origin: native
+    product_class: enzyme subunit
+    application: "Carbon fixation. Also the source of the rbcS2 promoter and its expression-boosting introns"
+    confidence: verified_sequence
+  - product: "[FeFe]-hydrogenase"
+    gene: HYDA1
+    host: Chlamydomonas reinhardtii
+    compartment: native
+    origin: native
+    product_class: enzyme
+    application: "Biohydrogen production; a flagship algal bioenergy target"
+    confidence: reported
+  - product: "Carbonic anhydrase"
+    gene: CAH1
+    host: Chlamydomonas reinhardtii
+    compartment: native
+    origin: native
+    product_class: enzyme
+    application: "Carbon-concentrating mechanism; CO2 capture engineering"
+    confidence: reported
+  - product: "Photosystem I reaction centre subunit II"
+    gene: PSAD
+    host: Chlamydomonas reinhardtii
+    compartment: native
+    origin: native
+    product_class: photosynthetic subunit
+    application: "Photosynthesis. Its promoter is a standard strong Cr nuclear promoter"
+    confidence: verified_sequence
+  - product: "Beta-carotene ketolase"
+    gene: BKT
+    host: Haematococcus pluvialis
+    compartment: native
+    origin: native
+    product_class: enzyme
+    application: "Astaxanthin biosynthesis -- the highest-value natural algal carotenoid product"
+    confidence: reported
+  - product: "Superoxide dismutase"
+    gene: SOD
+    host: "Chlamydomonas and other microalgae"
+    compartment: native
+    origin: native
+    product_class: enzyme
+    application: "Antioxidant for cosmetics and nutraceuticals"
+    confidence: reported
