@@ -40,3 +40,4 @@ tmp/
 # Not vendored here: these are someone else's files, and the fetch script plus
 # its recorded SHA-256 make the corpus reproducible without redistributing them.
 synatvis/data/construct_grammar/moclo_corpus/
+synatvis/data/construct_grammar/stage0/

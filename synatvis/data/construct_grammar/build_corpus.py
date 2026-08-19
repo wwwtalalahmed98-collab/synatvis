@@ -129,7 +129,11 @@ def parse_zip(blob: bytes, source: dict) -> list:
         # The filename stem is the part identity. An earlier version used a
         # non-greedy prefix regex, which collapsed EVERY Cr part to "pCM0" and
         # silently broke assembly de-duplication -- use the stem, which is unique.
-        stem = os.path.splitext(base)[0]
+        # Whitespace in a stem would break the FASTA round-trip: the reader splits
+        # the header on whitespace, so an id containing a space is silently truncated
+        # and the record can no longer be matched back to its manifest entry (and so
+        # loses its tier). Collapse whitespace to underscores at the source.
+        stem = re.sub(r"\s+", "_", os.path.splitext(base)[0])
         pid = re.match(r"([A-Za-z]+\d*(?:[-_]\d+)?)", stem)
         sites = {}
         for enz, site in TYPE_IIS.items():

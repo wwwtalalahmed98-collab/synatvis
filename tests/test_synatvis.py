@@ -705,6 +705,30 @@ def test_journey_reports_known_algal_product():
     assert "algae_prior_art" in [c["key"] for c in J["checkpoints"]]
 
 
+def test_stage0_split_never_evaluates_on_synthetic_records():
+    """The evaluation set must contain no synthetic records.
+
+    Synthetic records are assembled FROM cr_primary parts, so they contain
+    cr_primary sequence. Putting them in the test set would leak, and the leak
+    would look like accuracy. If this ever fails, the split logic regressed.
+    """
+    import json as _json
+    from synatvis.profiles import PACKAGE_DIR
+    led = os.path.join(PACKAGE_DIR, "data", "construct_grammar", "stage0",
+                       "stage0_ledger.json")
+    if not os.path.isfile(led):
+        return  # QC not run on this machine
+    with open(led, encoding="utf-8") as fh:
+        d = _json.load(fh)
+    sp = d["step10_frozen_split"]
+    assert sp["test_by_tier"].get("synthetic", 0) == 0, \
+        "synthetic records leaked into the evaluation set"
+    assert sp["train_by_tier"].get("synthetic", 0) == 0
+    assert sp["n_test"] > 0 and sp["n_train"] > 0
+    # deduplication must compare excised parts, not whole plasmids
+    assert d["step5_deduplication"]["compared_on"] == "excised part where possible"
+
+
 def test_calibration_anchors_are_real_and_cited():
     from synatvis.validation.calibration import load_anchors
     a = load_anchors()
