@@ -11,9 +11,11 @@ What it can and cannot establish, stated plainly:
           predictor, so it will never reproduce a 16x ratio. Reporting a magnitude
           mismatch as a failure would be misleading.
 
-This leg currently rests on ONE anchor set. One anchor is enough to expose a real
-defect and nowhere near enough to call the index calibrated -- say "one measured
-anchor", never "calibrated", until this file has several independent anchors.
+This leg rests on TWO independent anchor sets (Frontiers 2025 / NanoLuc; Baier 2018
+NAR / mVenus) that corroborate each other on direction and magnitude class. That is
+stronger than one -- but both probe the SAME axis, introns. Until a second axis is
+anchored (codon adaptation, promoter strength, UTR effects), say "directionally
+validated, two corroborating anchors on one axis", never "calibrated".
 """
 from __future__ import annotations
 
@@ -101,10 +103,12 @@ def run() -> Dict:
     if scores[2] < scores[1]:
         violations.append("score(2 introns) < score(1 intron), but 2 introns measure >16x MORE")
 
+    anchor_list = anchors.get("anchors", [])
     return {"available": True, "scores": scores, "measured_fold": measured,
             "violations": violations, "intron_bp": len(intron),
-            "anchor_id": "intron_mediated_enhancement_nanoluc",
-            "citation": anchors.get("anchors", [{}])[0].get("citation", "")}
+            "n_anchors": len(anchor_list),
+            "citations": [a.get("citation", "") for a in anchor_list],
+            "anchor_id": "intron_mediated_enhancement (2 corroborating sets)"}
 
 
 def main(profile: str = "cr_nuclear") -> int:
@@ -113,8 +117,9 @@ def main(profile: str = "cr_nuclear") -> int:
     if not r["available"]:
         print(f"  SKIPPED: {r['reason']}")
         return 0
-    print(f"  anchor: {r['anchor_id']}")
-    print(f"  source: {r['citation']}")
+    print(f"  anchors: {r['n_anchors']} independent set(s), same axis (introns)")
+    for c in r["citations"]:
+        print(f"    - {c[:104]}")
     print(f"  real excised intron: {r['intron_bp']} bp")
     print()
     print("  introns   index    real measured")
@@ -130,8 +135,8 @@ def main(profile: str = "cr_nuclear") -> int:
               "data/calibration_anchors.yaml -> known_defect_exposed.")
     else:
         print("  => ordering consistent with the measured anchor.")
-    print("\n  NOTE: one anchor set only. This is NOT sufficient to call the index "
-          "calibrated; magnitude is deliberately not scored.")
+    print("\n  NOTE: both anchors probe the SAME axis (introns). Corroborating, but NOT "
+          "sufficient to call the index calibrated; magnitude is deliberately not scored.")
     return 1 if r["violations"] else 0
 
 

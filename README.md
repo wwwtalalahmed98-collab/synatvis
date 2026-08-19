@@ -321,10 +321,22 @@ the user deliberately inserted. **The intron problem is not solved**: the
 false-positive rate is cut 4× and characterised; detection remains open. Full
 write-up in `calibration_anchors.yaml`.
 
-Scope, stated plainly: this is **one** anchor set. It is enough to expose a real
-defect and nowhere near enough to call the index calibrated. The index remains
-*"directionally validated, with one measured anchor and one known open defect"* —
-not *"calibrated"*.
+**A second, independent anchor now corroborates the first.** Baier et al. 2018
+([NAR, PMC6061784](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6061784/), open
+access) measured the same effect in a different lab with a different reporter
+(mVenus rather than NanoLuc) using the canonical rbcS2i1 intron: **8-fold** more
+protein and **>100-fold** more mRNA for the full intron-containing vector versus
+its intron-less counterpart, with expression rising monotonically as introns were
+added stepwise. The two anchors agree on direction and on magnitude class —
+protein enhancement in the single-to-low-double-digit range, transcript
+enhancement much larger. Two independent measurements agreeing this closely make
+the exposed defect considerably harder to dismiss.
+
+Scope, stated plainly: this is **two anchor sets on one axis**. Both probe
+introns. A second axis — codon adaptation, promoter strength, or UTR effects —
+is required before *"calibrated"* is an honest word. The index remains
+*"directionally validated, two corroborating measured anchors on one axis, one
+known open defect"*.
 
 ## Construct-grammar recognizer (in progress — Stage 0)
 

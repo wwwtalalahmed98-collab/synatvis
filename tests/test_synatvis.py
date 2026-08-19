@@ -708,17 +708,22 @@ def test_journey_reports_known_algal_product():
 def test_calibration_anchors_are_real_and_cited():
     from synatvis.validation.calibration import load_anchors
     a = load_anchors()
-    assert a["anchors"], "no calibration anchors defined"
+    assert len(a["anchors"]) >= 2, "expected at least two independent anchor sets"
     for anc in a["anchors"]:
         assert anc["citation"], "an anchor without a citation is not usable"
         assert anc["measurements"], "an anchor must carry real measured values"
-        # measurements must be monotonic in intron count -- this is the real biology
         by_n = {}
         for m in anc["measurements"]:
-            by_n.setdefault(m["introns"], []).append(m["relative_protein_activity"])
-        assert min(by_n[0]) == 1.0, "baseline must be 1.0"
-        assert min(by_n[1]) > 1.0, "1 intron must measure above baseline"
+            v = m.get("relative_protein_activity")
+            if v is not None:          # some entries are ordering evidence only
+                by_n.setdefault(m["introns"], []).append(v)
+        assert by_n.get(0) and min(by_n[0]) == 1.0, "baseline must be 1.0"
+        # the highest intron count present must measure above baseline
+        top = max(by_n)
+        assert min(by_n[top]) > 1.0, "more introns must measure above baseline"
     assert "known_defect_exposed" in a
+    # the honesty guard: the word "calibrated" must never be claimed outright
+    assert "NOT enough to call the index" in a["status"] or "never \"calibrated\"" in a["status"]
 
 
 def test_calibration_leg_runs_and_reports_the_known_ordering_defect():

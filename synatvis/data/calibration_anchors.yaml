@@ -14,10 +14,14 @@ how_to_use: >
   magnitude mismatch is a known, documented limitation.
 
 status: >
-  ONE anchor set so far (intron-mediated enhancement). That is enough to expose
-  a concrete defect, and NOT enough to call the index calibrated. Do not describe
-  the index as "calibrated" on this basis -- describe it as "one measured anchor,
-  one open defect".
+  TWO independent anchor sets, both on intron-mediated enhancement, from different
+  laboratories with different reporters (NanoLuc; mVenus). They corroborate each
+  other on direction and on magnitude class. That is enough to expose a concrete
+  defect and to make it hard to dismiss -- and still NOT enough to call the index
+  calibrated, because both anchors probe the SAME axis. A second axis (codon
+  adaptation, promoter strength, UTR effects) is required before "calibrated" is an
+  honest word. Describe the index as "directionally validated, two corroborating
+  measured anchors on one axis, one open defect".
 
 anchors:
   - id: intron_mediated_enhancement_nanoluc
@@ -57,6 +61,44 @@ anchors:
     required_ordering:
       - "score(2 introns) >= score(1 intron)"
       - "score(1 intron) >= score(0 introns)"
+
+  - id: intron_mediated_enhancement_mvenus_baier2018
+    organism: Chlamydomonas reinhardtii
+    compartment: nuclear
+    reporter: mVenus (YFP) fused to a codon-optimised PcPs sequence
+    intron: "rbcS2i1, 145 bp, NCBI X04472.1 -- the canonical Cr expression-boosting intron"
+    method: >
+      Four vectors differing only in intron content: A is intron-less; B and C add rbcS2i1
+      stepwise; D is the full intron-containing design with exons of 583 bp or smaller.
+      Fluorescence measured at protein level, relative mRNA abundance at transcript level.
+    citation: "Baier et al. 2018, Nucleic Acids Research, PMC6061784 -- 'Intron-containing algal transgenes mediate efficient recombinant gene expression in the green microalga Chlamydomonas reinhardtii'"
+    open_access: true
+    retrieved: "2026-08-13 via Europe PMC fullTextXML"
+    measurements:
+      - construct: "vector A -- intron-less"
+        introns: 0
+        relative_protein_activity: 1.0
+        note: "baseline"
+      - construct: "vectors B and C -- stepwise rbcS2i1 incorporation"
+        introns: 1
+        relative_protein_activity: null
+        note: "text states expression was 'consistently increased' with stepwise incorporation but gives no separate number for B and C; recorded as ordering evidence only, NOT as a magnitude"
+      - construct: "vector D -- full intron-containing design"
+        introns: 2
+        relative_protein_activity: 8.0
+        note: "8-fold greater fluorescence than intron-less vector A"
+    transcript_level:
+      vector_d_vs_a_fold: 100
+      note: "text says '>100-fold change of relative mRNA abundance comparing vector A and D'; recorded as a documented LOWER BOUND"
+    required_ordering:
+      - "score(vector D) >= score(vector A)"
+    why_this_anchor_matters: >
+      An INDEPENDENT corroboration of the first anchor, from a different laboratory, a
+      different reporter (mVenus vs NanoLuc) and a different construct design. The two
+      agree on direction and on magnitude class: protein enhancement in the single-to-low
+      double-digit fold range (8x here, >16x there) and transcript enhancement much larger
+      (>100x here, ~60x there). Two independent measurements agreeing this closely is
+      considerably stronger evidence than either alone.
 
 known_defect_exposed:
   id: intron_sequence_scored_as_coding
