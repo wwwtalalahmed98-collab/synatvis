@@ -11,11 +11,12 @@ What it can and cannot establish, stated plainly:
           predictor, so it will never reproduce a 16x ratio. Reporting a magnitude
           mismatch as a failure would be misleading.
 
-This leg rests on TWO independent anchor sets (Frontiers 2025 / NanoLuc; Baier 2018
-NAR / mVenus) that corroborate each other on direction and magnitude class. That is
-stronger than one -- but both probe the SAME axis, introns. Until a second axis is
-anchored (codon adaptation, promoter strength, UTR effects), say "directionally
-validated, two corroborating anchors on one axis", never "calibrated".
+This leg rests on THREE anchor sets across TWO axes:
+  introns -- Frontiers 2025 (NanoLuc) and Baier 2018 NAR (mVenus), corroborating
+  codon   -- Barahimipour 2015 Plant J, same protein, synonymous codons only
+The tool currently PASSES the codon axis and FAILS the intron axis, which is a far
+more useful statement than a single overall verdict. Still not "calibrated": these
+constrain ORDERING, and only two of the four weighted models are anchored at all.
 """
 from __future__ import annotations
 
@@ -103,12 +104,26 @@ def run() -> Dict:
     if scores[2] < scores[1]:
         violations.append("score(2 introns) < score(1 intron), but 2 introns measure >16x MORE")
 
+    # --- second axis: codon adaptation (Barahimipour 2015) ---
+    # Same protein, synonymous codons only -- the same experimental design as the paper.
+    cases = open(os.path.join(PACKAGE_DIR, "data", "cases.yaml"), encoding="utf-8").read()
+    m_nat = re.search(r'id: gfp_native_at_rich.*?sequence: "([ACGT]+)"', cases, re.S)
+    m_opt = re.search(r'id: gfp_cr_codon_optimized.*?sequence: "([ACGT]+)"', cases, re.S)
+    codon = None
+    if m_nat and m_opt:
+        lo, hi = epi(m_nat.group(1)), epi(m_opt.group(1))
+        codon = {"low_rca": round(lo, 1), "high_rca": round(hi, 1), "ok": hi >= lo}
+        if not codon["ok"]:
+            violations.append("codon axis: the Cr-codon-optimised variant scores BELOW the "
+                              "AT-rich original, but it measures far higher")
+
     anchor_list = anchors.get("anchors", [])
     return {"available": True, "scores": scores, "measured_fold": measured,
             "violations": violations, "intron_bp": len(intron),
             "n_anchors": len(anchor_list),
             "citations": [a.get("citation", "") for a in anchor_list],
-            "anchor_id": "intron_mediated_enhancement (2 corroborating sets)"}
+            "codon_axis": codon,
+            "anchor_id": "3 anchor sets across 2 axes"}
 
 
 def main(profile: str = "cr_nuclear") -> int:
@@ -117,7 +132,7 @@ def main(profile: str = "cr_nuclear") -> int:
     if not r["available"]:
         print(f"  SKIPPED: {r['reason']}")
         return 0
-    print(f"  anchors: {r['n_anchors']} independent set(s), same axis (introns)")
+    print(f"  anchors: {r['n_anchors']} sets across 2 axes (introns; codon adaptation)")
     for c in r["citations"]:
         print(f"    - {c[:104]}")
     print(f"  real excised intron: {r['intron_bp']} bp")
@@ -126,6 +141,13 @@ def main(profile: str = "cr_nuclear") -> int:
     for n in (0, 1, 2):
         note = "baseline" if n == 0 else f">={r['measured_fold'][n]:.0f}x more protein"
         print(f"    {n}       {r['scores'][n]:5.1f}    {note}")
+    if r.get("codon_axis"):
+        c = r["codon_axis"]
+        print()
+        print("  second axis -- codon adaptation (Barahimipour 2015, same protein):")
+        print(f"    AT-rich original      {c['low_rca']:5.1f}   measures: below detection limit")
+        print(f"    Cr-codon-optimised    {c['high_rca']:5.1f}   measures: highest, >1% total soluble protein")
+        print(f"    -> {'PASSES' if c['ok'] else 'FAILS'} the measured ordering")
     print()
     if r["violations"]:
         print(f"  ORDERING VIOLATIONS ({len(r['violations'])}):")
@@ -135,8 +157,9 @@ def main(profile: str = "cr_nuclear") -> int:
               "data/calibration_anchors.yaml -> known_defect_exposed.")
     else:
         print("  => ordering consistent with the measured anchor.")
-    print("\n  NOTE: both anchors probe the SAME axis (introns). Corroborating, but NOT "
-          "sufficient to call the index calibrated; magnitude is deliberately not scored.")
+    print("\n  NOTE: two axes anchored (introns; codon adaptation) of four weighted models. "
+          "These constrain ORDERING only -- magnitude is deliberately not scored. The index "
+          "is NOT yet calibrated.")
     return 1 if r["violations"] else 0
 
 

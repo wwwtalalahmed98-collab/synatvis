@@ -708,19 +708,33 @@ def test_journey_reports_known_algal_product():
 def test_calibration_anchors_are_real_and_cited():
     from synatvis.validation.calibration import load_anchors
     a = load_anchors()
-    assert len(a["anchors"]) >= 2, "expected at least two independent anchor sets"
+    assert len(a["anchors"]) >= 3, "expected at least three anchor sets"
+    axes = set()
     for anc in a["anchors"]:
         assert anc["citation"], "an anchor without a citation is not usable"
         assert anc["measurements"], "an anchor must carry real measured values"
-        by_n = {}
-        for m in anc["measurements"]:
-            v = m.get("relative_protein_activity")
-            if v is not None:          # some entries are ordering evidence only
-                by_n.setdefault(m["introns"], []).append(v)
-        assert by_n.get(0) and min(by_n[0]) == 1.0, "baseline must be 1.0"
-        # the highest intron count present must measure above baseline
-        top = max(by_n)
-        assert min(by_n[top]) > 1.0, "more introns must measure above baseline"
+        ms = anc["measurements"]
+        if any("introns" in m for m in ms):
+            # intron-axis schema: fold activity keyed on intron count
+            axes.add("intron")
+            by_n = {}
+            for m in ms:
+                v = m.get("relative_protein_activity")
+                if v is not None:      # some entries are ordering evidence only
+                    by_n.setdefault(m["introns"], []).append(v)
+            assert by_n.get(0) and min(by_n[0]) == 1.0, "baseline must be 1.0"
+            assert min(by_n[max(by_n)]) > 1.0, "more introns must measure above baseline"
+        else:
+            # codon-axis schema: ranked variants with measured RCA
+            axes.add("codon")
+            ranks = [m["rank"] for m in ms]
+            rcas = [m["rca_percent"] for m in ms]
+            assert len(set(ranks)) == len(ranks), "variant ranks must be distinct"
+            # rank order must agree with RCA order -- that is the paper's finding
+            paired = sorted(zip(ranks, rcas))
+            assert [r for _, r in paired] == sorted(rcas), \
+                "measured rank must be monotonic in RCA"
+    assert len(axes) >= 2, "anchors must span at least two independent axes"
     assert "known_defect_exposed" in a
     # the honesty guard: the word "calibrated" must never be claimed outright
     assert "NOT enough to call the index" in a["status"] or "never \"calibrated\"" in a["status"]

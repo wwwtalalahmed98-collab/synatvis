@@ -14,14 +14,15 @@ how_to_use: >
   magnitude mismatch is a known, documented limitation.
 
 status: >
-  TWO independent anchor sets, both on intron-mediated enhancement, from different
-  laboratories with different reporters (NanoLuc; mVenus). They corroborate each
-  other on direction and on magnitude class. That is enough to expose a concrete
-  defect and to make it hard to dismiss -- and still NOT enough to call the index
-  calibrated, because both anchors probe the SAME axis. A second axis (codon
-  adaptation, promoter strength, UTR effects) is required before "calibrated" is an
-  honest word. Describe the index as "directionally validated, two corroborating
-  measured anchors on one axis, one open defect".
+  THREE anchor sets across TWO axes. Introns: Frontiers 2025 (NanoLuc) and Baier 2018
+  NAR (mVenus), independently corroborating. Codon adaptation: Barahimipour 2015
+  Plant J, same protein with synonymous codons only. The tool currently PASSES the
+  codon axis and FAILS the intron axis -- a far more useful statement than a single
+  overall verdict, and it localises the defect to one mechanism rather than the whole
+  index. Still NOT calibrated: these anchors constrain ORDERING, not magnitude, and
+  only two of the four weighted models (rca, tai, gc, dg) are anchored at all.
+  Describe the index as "directionally validated; ordering confirmed on the codon axis,
+  one open defect on the intron axis" -- never "calibrated".
 
 anchors:
   - id: intron_mediated_enhancement_nanoluc
@@ -99,6 +100,58 @@ anchors:
       double-digit fold range (8x here, >16x there) and transcript enhancement much larger
       (>100x here, ~60x there). Two independent measurements agreeing this closely is
       considerably stronger evidence than either alone.
+
+  - id: codon_adaptation_yfp_barahimipour2015
+    axis: "codon adaptation (RCA) -- the SECOND axis, independent of the intron anchors"
+    organism: Chlamydomonas reinhardtii
+    compartment: nuclear
+    reporter: YFP (Venus derivative)
+    method: >
+      Four YFP variants encoding the SAME protein, differing only in synonymous codon
+      usage, placed in the same expression cassette and the same transformation vector.
+      Critically, one variant (YFPla) was built by synonymous NNC->NNG substitution so it
+      holds GC content constant while dropping RCA -- this deliberately DECOUPLES codon
+      usage from GC content, which no other anchor here does. Protein measured by in-gel
+      fluorescence against a calibrated internal standard.
+    citation: "Barahimipour et al. 2015, The Plant Journal, PMC4715772 -- 'Dissecting the contributions of GC content and codon usage to gene expression in the model alga Chlamydomonas reinhardtii'"
+    open_access: true
+    retrieved: "2026-08-13 via NCBI PMC efetch"
+    already_cited_in_project: "cases.yaml Leg-3 rescue pair cites this paper"
+    measurements:
+      - variant: CrYFP
+        rca_percent: 100.0
+        gc_percent: 66
+        outcome: "by far the highest YFP expression; accumulates to >1% of total soluble protein"
+        rank: 4
+      - variant: vYFP
+        rca_percent: 93.9
+        gc_percent: 62
+        outcome: "significantly higher accumulation than YFPla despite slightly LOWER GC -- attributed to higher RCA"
+        rank: 3
+      - variant: YFPla
+        rca_percent: 71.9
+        gc_percent: 63
+        outcome: "much lower accumulation than CrYFP at identical GC content"
+        rank: 2
+      - variant: CrCpYFP
+        rca_percent: 16.5
+        gc_percent: 28
+        outcome: "below the detection limit -- no appreciable expression even in UVM expression strains"
+        rank: 1
+    required_ordering:
+      - "score(CrYFP) >= score(vYFP) >= score(YFPla) >= score(CrCpYFP)"
+      - "monotonic in RCA"
+    why_this_anchor_matters: >
+      This is the second AXIS the calibration leg needed. Both intron anchors probe the same
+      mechanism; this one probes codon adaptation, which is the single heaviest-weighted
+      model in the expression index. The vYFP-versus-YFPla comparison is the sharpest result
+      in the paper: vYFP has slightly LOWER GC but HIGHER RCA and expresses significantly
+      better, so RCA dominates GC. The tool weights rca at 0.30 and gc at 0.20, which is
+      directionally consistent with that finding -- but the weights were never fitted to it.
+    caveat: >
+      The paper reports ranks and qualitative magnitudes ("much lower", "below detection")
+      plus one absolute figure (>1% TSP), not a clean fold-change table. So this anchor
+      constrains ORDERING strictly and magnitude only loosely.
 
 known_defect_exposed:
   id: intron_sequence_scored_as_coding
