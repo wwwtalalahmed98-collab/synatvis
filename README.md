@@ -234,9 +234,9 @@ language ("this region folds into a solid, well-defined shape"; "this stretch is
 floppy — a good place for a linker/tag"). It reads real pLDDT when an AlphaFold3/Boltz
 plugin is wired, otherwise a clearly-labelled sequence order/disorder proxy (TOP-IDP).
 
-It is a **model, not a measured yield** — uncalibrated pending wet-lab data (the
-grant's Aim 2), and it stays a separate, clearly-labelled module (the validated
-diagnostic core still emits no score). It is *directionally validated*: it ranks
+It is a **model, not a measured yield** — uncalibrated pending wet-lab data, and
+it stays a separate, clearly-labelled module (the validated diagnostic core still
+emits no score). It is *directionally validated*: it ranks
 Cr-codon-optimised rescue partners far above their native versions (GFP 0→77,
 luciferase 0→81) and native genes above foreign (median 79 vs 0; 99% vs 1% above 50).
 

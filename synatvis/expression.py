@@ -17,8 +17,8 @@ separately so the estimate is never a black box:
 The ensemble index is the weighted mean of the AVAILABLE anchored models, then
 multiplied by hard hazard gates (premature poly(A), silencing GC trough, uORF,
 missing start). It is a MODEL, not a measured yield — uncalibrated pending
-experimental data (grant Aim 2), but directionally validated (ranks Cr-optimised
-rescue partners above native; native above foreign).
+experimental data, but directionally validated (ranks Cr-optimised rescue
+partners above native; native above foreign).
 """
 from __future__ import annotations
 
